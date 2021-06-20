@@ -1,0 +1,9 @@
+pandas
+numpy
+plotly
+streamlit
+yfinance
+investpy
+matplotlib
+seaborn
+cufflinks
