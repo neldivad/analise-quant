@@ -1,2 +1,2 @@
-# analise-acoes
-App para analise geral de ações
+# analise-quant
+Quant analysis of financial market
