@@ -18,7 +18,7 @@ except ModuleNotFoundError:
     from streamlit.server.server import Server
     
 st.set_option('deprecation.showPyplotGlobalUse', False) # Desabilitar os Warnigs sobre o Pyplot
-st.set_page_config(page_title='Análise Quant Ações', layout = 'wide', initial_sidebar_state = 'auto') # Configurar Pagina
+st.set_page_config(page_title='Análise Quant', layout = 'wide', initial_sidebar_state = 'auto') # Configurar Pagina
 
 def main():
     state = _get_state()
@@ -71,6 +71,7 @@ def puxar_dados(state):
   stocks_list = inv.get_stocks_list(country='Brazil') #Pegar a lista das Ações Brasileiras
   stocks_list.remove('NATU3')
   stocks_list.append('NTCO3')
+  stocks_list.append('BOVA11')
   #stocks_df = pd.DataFrame(stocks_list) #Transforma a lista em DataFrame
   #stocks_df.columns = ['Ticker'] #Adiciona o nome da coluna
   #indices = [{'Ticker': 'Indice Bovespa'}, {'Ticker': 'Indice Dolar'},{'Ticker': 'Indice SP500'}, {'Ticker': 'Indice Dow Jones'}, {'Ticker': 'Indice NASDAQ'}]
