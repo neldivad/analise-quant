@@ -1,6 +1,7 @@
 import streamlit as st
 from streamlit.hashing import _CodeHasher
 import quant_app_carteira
+import quant_app_correlacao
 #import quant_app_carteira2
 #import quant_app_teste
 import yfinance as yf
@@ -25,8 +26,8 @@ def main():
 
     #Removing and add pages 
     pages = {
-        "Análise de Carteira": page_carteira
-        
+        "Análise de Carteira": page_carteira,
+        "Análise de Correlações": page_correlacao
         }  
 
     st.sidebar.title(":chart: Análise Quant v.2")
@@ -63,6 +64,9 @@ def main():
 
 def page_carteira(state):
     quant_app_carteira.carteira(state)
+
+def page_correlacao(state):
+    quant_app_correlacao.correlacao(state)
 
 def page_teste(state):
     quant_app_teste.teste(state)
