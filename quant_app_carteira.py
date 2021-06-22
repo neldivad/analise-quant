@@ -16,7 +16,7 @@ import math
 def carteira(state):
 
   st.header('Análise da Carteira')
-  with st.form(key='Inserir_Ativos'):
+  with st.form(key='Carteira_Inserir_Ativos'):
     st.markdown('Insira os Ativos que compõem sua Carteira')
     col1, col2 = st.beta_columns(2)
     with col1:
@@ -74,6 +74,10 @@ def carteira(state):
 def fix_col_names(df): # Função para tirar os .SA ou corrigir os simbolos
   return ['IBOV' if col =='^BVSP' else col.rstrip('.SA') for col in df.columns]
 
+def calc_porc_e_betapond(state):
+  state.portifolio['%'] = (state.portifolio['Valor na Carteira'] / state.portifolio['Valor na Carteira'].sum()) 
+  state.portifolio['Beta Ponderado'] = state.portifolio['%']  * state.portifolio['Beta do Ativo']
+
 def botao_inserir(state):
   try:
     ticker = yf.Ticker(state.papel + '.SA')
@@ -92,14 +96,14 @@ def botao_inserir(state):
     subsetor = ticker.info['industry']
     state.portifolio = state.portifolio.append({'Ação': state.papel, 'Qtde': state.lote, 'Últ. Preço': ultimo_preco, 'Valor na Carteira': valor_total,
                                                 'Setor': setor, 'SubSetor': subsetor, 'Beta do Ativo': beta}, ignore_index=True)
-    state.portifolio['%'] = (state.portifolio['Valor na Carteira'] / state.portifolio['Valor na Carteira'].sum()) 
-    state.portifolio['Beta Ponderado'] = state.portifolio['%']  * state.portifolio['Beta do Ativo']
+    calc_porc_e_betapond(state)
 
   except:
     st.error('Ops! Verifique as informações.')
 
 def botao_apagar_ultimo(state):
   state.portifolio.drop(state.portifolio.tail(1).index,inplace=True) # Apaga o ultimo registro do DataFrame
+  calc_porc_e_betapond(state)
 
 def botao_apagar_tudo(state):
   state.portifolio = pd.DataFrame()
