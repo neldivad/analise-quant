@@ -30,7 +30,7 @@ def main():
         "Análise de Correlações": page_correlacao
         }  
 
-    st.sidebar.title(":chart: Análise Quant v.2")
+    st.sidebar.title(":chart: Análise Quant v.2 - Beta")
     page = st.sidebar.radio("Selecione a opção", tuple(pages.keys()))
     st.sidebar.markdown("***")
     st.sidebar.markdown('''<small>Criado por Roberto Martins</small>''', unsafe_allow_html=True)
