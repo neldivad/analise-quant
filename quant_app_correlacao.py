@@ -12,7 +12,6 @@ import cufflinks as cf
 import datetime
 from datetime import date
 import math
-from st_aggrid import AgGrid
 
 def correlacao(state):
   st.header('Análise de Correlação entre Ativos')
