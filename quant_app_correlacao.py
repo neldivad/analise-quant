@@ -12,18 +12,21 @@ import cufflinks as cf
 import datetime
 from datetime import date
 import math
+from st_aggrid import AgGrid
 
 def correlacao(state):
   st.header('Análise de Correlação entre Ativos')
   with st.form(key='Correlacao_Inserir_Ativos'):
-    #st.markdown('Insira os Ativos para analisar as correlações') 
-    state.tickers_sel = st.multiselect('Insira os Ativos para analisar as correlações', state.stocks_df)
+    state.tickers_sel = st.multiselect('Insira os Ativos para analisar as correlações', state.lista_tickers)
     if st.form_submit_button(label='Analisar Correlações'): 
       if len(state.tickers_sel) == 0:
         st.error('Lista Vazia. Insira ao menos 1 ativo!')
 
   if len(state.tickers_sel) != 0: # Se a lista estiver vazia, não mostra nada
     calcular_correlacoes(state)
+
+def fix_col_names(df): # Função para tirar os .SA ou corrigir os simbolos
+  return ['IBOV' if col =='^BVSP' else col.rstrip('.SA') for col in df.columns]
 
 def calcular_correlacoes(state):
   tickers = [item + '.SA' for item in state.tickers_sel] # Adicionar o '.SA' nos tickers
@@ -42,7 +45,7 @@ def calcular_correlacoes(state):
 
   col1, col2, col3 = st.beta_columns([1,0.1,1])
   with col1:
-    st.write('***Correlação dos Ativos com IBOV e Dolar***')
+    st.write('**Correlação dos Ativos com IBOV e Dolar**')
     corr_table_indices = pd.DataFrame(correlacao_full['IBOV'])
     corr_table_indices['Dolar'] = correlacao_full['Dolar']
     corr_table_indices = corr_table_indices.drop('IBOV',0)
@@ -61,7 +64,7 @@ def calcular_correlacoes(state):
       #st.dataframe(corr_table_indices, height=400)
 
   with col3:
-    st.write('***Correlações mais fortes e menos fortes***')
+    st.write('**Correlação entre os Ativos**')
     correlacao['Ação 1'] = correlacao.index
     correlacao = correlacao.melt(id_vars = 'Ação 1', var_name = "Ação 2",value_name='Correlação').reset_index(drop = True)
     correlacao = correlacao[correlacao['Ação 1'] < correlacao['Ação 2']].dropna()
@@ -79,6 +82,3 @@ def calcular_correlacoes(state):
               
     st.table(highest_corr)
     #st.dataframe(highest_corr, height=600)
-      
-def fix_col_names(df): # Função para tirar os .SA ou corrigir os simbolos
-  return ['IBOV' if col =='^BVSP' else col.rstrip('.SA') for col in df.columns]
