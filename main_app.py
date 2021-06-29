@@ -35,7 +35,8 @@ def main():
     st.sidebar.markdown("***")
     st.sidebar.markdown('''<small>Criado por Roberto Martins</small>''', unsafe_allow_html=True)
     st.sidebar.markdown('''<small>rraires.dev@gmail.com</small>''', unsafe_allow_html=True)
-    puxar_dados(state)
+    #puxar_tickers_investing(state)
+    puxar_tickers_grafbolsa(state)
 
     ###### Iniciar o DataFrame do Portifolio, somente no primeiro carregamento da Página
 
@@ -51,7 +52,7 @@ def main():
       state.portifolio['Setor'] = ''
       state.portifolio['SubSetor'] = ''
       state.portifolio['Beta do Ativo'] = ''
-      #state.portifolio['Beta Ponderadorado'] = ''
+      #state.portifolio['Beta Ponderado'] = ''
 
     ##########################################
 
@@ -71,18 +72,17 @@ def page_correlacao(state):
 def page_teste(state):
     quant_app_teste.teste(state)
 
-def puxar_dados(state):
-  stocks_list = inv.get_stocks_list(country='Brazil') #Pegar a lista das Ações Brasileiras
-  stocks_list.remove('NATU3')
-  stocks_list.append('NTCO3')
-  stocks_list.append('BOVA11')
-  #stocks_df = pd.DataFrame(stocks_list) #Transforma a lista em DataFrame
-  #stocks_df.columns = ['Ticker'] #Adiciona o nome da coluna
-  #indices = [{'Ticker': 'Indice Bovespa'}, {'Ticker': 'Indice Dolar'},{'Ticker': 'Indice SP500'}, {'Ticker': 'Indice Dow Jones'}, {'Ticker': 'Indice NASDAQ'}]
-  #stocks_df = stocks_df.append(indices, ignore_index=True)
-  #state.stocks_df = stocks_df.sort_values(by='Ticker').reset_index(drop=True) #Ordena por ordem alfabetica e reseta o index
-  state.stocks_df = stocks_list
+def puxar_tickers_investing(state):
+  state.lista_tickers = inv.get_stocks_list(country='Brazil') #Pegar a lista das Ações Brasileiras
+  state.lista_tickers.remove('NATU3')
+  state.lista_tickers.append('NTCO3')
+  state.lista_tickers.append('BOVA11')
 
+def puxar_tickers_grafbolsa(state):
+  url = 'http://www.grafbolsa.com/index.html'
+  tabela = pd.read_html(url)[1][3:] # Pega a 2º tabela, da 3º linha para baixo
+  tabela = tabela.sort_values(9) # Classifica em ordem alfabetica pela coluna do código
+  state.lista_tickers = tabela[9].to_list() # Transforma a Serie em lista, para ser usada nos widgets
 
 ######### Área da Persistencia de Sessão #########
 
