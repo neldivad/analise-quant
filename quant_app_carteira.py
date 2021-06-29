@@ -3,24 +3,22 @@ from streamlit.hashing import _CodeHasher
 import numpy as np
 import pandas as pd
 import yfinance as yf
-import investpy as inv
-import time
-import matplotlib.pyplot as plt
+#import time
+#import matplotlib.pyplot as plt
 import plotly.express as px
-import seaborn as sns
-import cufflinks as cf
-import datetime
-from datetime import date
+#import seaborn as sns
+#import cufflinks as cf
+#import datetime
+#from datetime import date
 import math
 
 def carteira(state):
-
   st.header('Análise da Carteira')
   with st.form(key='Carteira_Inserir_Ativos'):
     st.markdown('Insira os Ativos que compõem sua Carteira')
     col1, col2 = st.beta_columns(2)
     with col1:
-      state.papel = st.selectbox('Insira o Ativo', state.stocks_df, help='Insira o ativo no caixa de seleção(Não é necessario apagar o ativo, apenas clique e digite as iniciais que a busca irá encontrar)')
+      state.papel = st.selectbox('Insira o Ativo', state.lista_tickers, help='Insira o ativo no caixa de seleção(Não é necessario apagar o ativo, apenas clique e digite as iniciais que a busca irá encontrar)')
     with col2:
       state.lote = st.text_input('Quantidade',value='100')
 
@@ -53,7 +51,7 @@ def carteira(state):
 
   st.subheader("**Cálculos e Análises**")
 
-  # Chama as funções para os cálculos e ações
+  # Chamar as funções para os cálculos e análises
 
   calculo_hedge(state)
   calculo_correlacao(state)
@@ -64,8 +62,13 @@ def carteira(state):
   with st.beta_expander("Ajuda"):
     st.write(
         """
-        - O que é BETA? - O Beta é uma medida da volatilidade dos preços de uma ação ou de uma Carteira em relação ao mercado. 
+        - **O que é BETA?** - O Beta é uma medida da volatilidade dos preços de uma ação ou de uma Carteira em relação ao mercado. 
           Em outras palavras, como o preço daquela ação ou da sua Carteira se movimenta em relação ao mercado em geral.
+          Ex: Se sua Carteira tem um Beta de 1.2, significa que ela tem uma volatilidade maior que o IBOV, onde se o IBOV variar 1%, 
+          a sua carteira tende a variar 1,2%.
+        - **Correlação** - Demonstra o comportamento de um ativo em relação a outro, ou seja, em um determinado periodo, como este ativo
+          se moveu em relação ao outro. Ela pode ser positiva (ativo se movimenta na mesma direção do outro) ou negativa. 
+          Faixas: 0% a 30% - Sem correlação, ou correlação muito fraca. 30% a 70% - Correlação moderada. 70% a 100% - Correlação alta.
         """
     )
 
@@ -80,23 +83,31 @@ def calc_porc_e_betapond(state):
 
 def botao_inserir(state):
   try:
-    ticker = yf.Ticker(state.papel + '.SA')
-    #ultimo_preco = yf.download(state.papel + '.SA',period='1d')['Adj Close'][0] #Pegar o ultimo preço de fechamento da lista
-    precos = yf.download([state.papel + '.SA', '^BVSP'],period='1y', progress=False)['Adj Close']
-    precos = precos.fillna(method='bfill')
-    ultimo_preco = precos[state.papel + '.SA'].tail(1)[0] # Ultimo preço do Ativo
-    retornos = precos.pct_change()
-    retornos = retornos[1:]
-    std_asset = retornos[state.papel + '.SA'].std()
-    std_bench = retornos['^BVSP'].std()
-    corr = retornos[state.papel + '.SA'].corr(retornos['^BVSP'])
-    beta = corr * (std_asset / std_bench)
-    valor_total = float(state.lote) * float(ultimo_preco)
-    setor = ticker.info['sector']
-    subsetor = ticker.info['industry']
-    state.portifolio = state.portifolio.append({'Ação': state.papel, 'Qtde': state.lote, 'Últ. Preço': ultimo_preco, 'Valor na Carteira': valor_total,
-                                                'Setor': setor, 'SubSetor': subsetor, 'Beta do Ativo': beta}, ignore_index=True)
-    calc_porc_e_betapond(state)
+    if any(state.portifolio['Ação']==state.papel): # Verificar se o Ativo já existe no DataFrame(Carteira)
+      st.error('Ativo já existe na carteira. Por favor verifique!')
+    else:
+      ticker = yf.Ticker(state.papel + '.SA')
+      #ultimo_preco = yf.download(state.papel + '.SA',period='1d')['Adj Close'][0] #Pegar o ultimo preço de fechamento da lista
+      precos = yf.download([state.papel + '.SA', '^BVSP'],period='1y', progress=False)['Adj Close']
+      precos = precos.fillna(method='bfill')
+      ultimo_preco = precos[state.papel + '.SA'].tail(1)[0] # Ultimo preço do Ativo
+      retornos = precos.pct_change()
+      retornos = retornos[1:]
+      std_asset = retornos[state.papel + '.SA'].std()
+      std_bench = retornos['^BVSP'].std()
+      corr = retornos[state.papel + '.SA'].corr(retornos['^BVSP'])
+      beta = corr * (std_asset / std_bench)
+      valor_total = float(state.lote) * float(ultimo_preco)
+      setor = ticker.info['sector']
+      subsetor = ticker.info['industry']
+      if setor == '' or subsetor =='':
+        setor = 'ETF'
+        subsetor = ticker.info['shortName']
+      if 'FII' in ticker.info['shortName']:
+        setor = 'FII'
+      state.portifolio = state.portifolio.append({'Ação': state.papel, 'Qtde': state.lote, 'Últ. Preço': ultimo_preco, 'Valor na Carteira': valor_total,
+                                                  'Setor': setor, 'SubSetor': subsetor, 'Beta do Ativo': beta}, ignore_index=True)
+      calc_porc_e_betapond(state)
 
   except:
     st.error('Ops! Verifique as informações.')
@@ -119,7 +130,7 @@ def botao_apagar_tudo(state):
 
 def calculo_hedge(state):
   with st.beta_expander("Beta da Carteira e Informações sobre Hedge(Proteção)", expanded=True):
-    if st.checkbox('Calcular o Beta da Carteira e Hedge de proteção', help='Selecione para calcular o Beta da Carteira e mostrar informações sobre Hedge'):
+    if st.checkbox('Calcular o Beta da Carteira e Hedge de proteção', help='O Beta da Carteira irá mostrar o quanto ela está relacionada com o mercado, e o Hedge te trará informações sobre proteção. Beta calculado sobre o periodo de 1 ano de histórico dos ativos.'):
       if state.portifolio.shape[0] != 0:
         #try:
           # Cálculos
@@ -155,13 +166,17 @@ def calculo_hedge(state):
 
 def calculo_correlacao(state):
   with st.beta_expander("Correlação entre os Ativos e os Indices (IBOV e Dolar)", expanded=True):
-    if st.checkbox('Análise de Correlação', help='Selecione para calcular a correlação entre os ativos da sua carteira e índices'):
+    if st.checkbox('Análise de Correlação', help='Mostra a Correlação dos ativos da sua Carteira em relação ao IBOV e Dolar, e também a correlação entre eles. Faixas: 0% a 30% - Sem correlação, ou correlação muito fraca. 30% a 70% - Correlação moderada. 70% a 100% - Correlação alta.'):
       #try:
+        periodo = st.radio('Período de correlação:',['3 meses', '6 meses', '1 ano'], index=2)
+        if periodo == '3 meses': periodo = '3mo'
+        if periodo == '6 meses': periodo = '6mo'
+        if periodo == '1 ano': periodo = '1y'
         tickers = state.portifolio['Ação'] + ".SA"
         tickers = tickers.to_list()
         tickers += ['^BVSP', 'USDBRL=X'] # Adicionar os indices na comparação
 
-        retornos = yf.download(tickers, period='1y', progress=False)["Adj Close"].pct_change()
+        retornos = yf.download(tickers, period=periodo, progress=False)["Adj Close"].pct_change()
         retornos = retornos.rename(columns={'^BVSP': 'IBOV', 'USDBRL=X': 'Dolar'}) # Adicionar os indices na comparação
         retornos = retornos.fillna(method='bfill')
         #retornos = carteira.pct_change()
@@ -192,7 +207,7 @@ def calculo_correlacao(state):
             st.table(corr_table_indices)
 
         with col3:
-          st.write('***Correlações mais fortes e menos fortes***')
+          st.write('***Correlações entre os Ativos***')
           correlacao['Ação 1'] = correlacao.index
           correlacao = correlacao.melt(id_vars = 'Ação 1', var_name = "Ação 2",value_name='Correlação').reset_index(drop = True)
           correlacao = correlacao[correlacao['Ação 1'] < correlacao['Ação 2']].dropna()
@@ -216,22 +231,22 @@ def calculo_correlacao(state):
 
 def calculo_setorial(state):
   with st.beta_expander("Análise Setorial da sua Carteira", expanded=True):
-    if st.checkbox('Análise Setorial', help='Selecione para mostrar a distribuição setorial da sua Carteira'):
+    if st.checkbox('Análise Setorial', help='Verifique como está a distribuição da sua Carteira em relação aos setores do mercado. Quanto mais diversificado, melhor.'):
       #try:
-        opcao_grafico = st.radio('Selecione o tipo de Gráfico', ['SunBurst', 'TreeMap'])
-        if opcao_grafico == 'SunBurst':
-          fig = px.sunburst(state.portifolio, path=['Setor', 'SubSetor', 'Ação'], values='%', height=700)
+        opcao_grafico = st.radio('Selecione o tipo de Gráfico', ['Gráfico estilo Pizza', 'Gráfico estilo Árvore'])
+        if opcao_grafico == 'Gráfico estilo Pizza':
+          fig = px.sunburst(state.portifolio, path=['Setor', 'SubSetor', 'Ação'], values='%', height=700, title='Distribuição Setorial da sua Carteira (Verifique se os setores estão diversificados)')
           fig.update_traces(textfont_color='white',
                             textfont_size=14,
-                            hovertemplate='<b>%{label}:</b> %{value:.2f}%')
+                            hovertemplate='<b>%{label}:</b> %{value:.2%}')
           st.plotly_chart(fig)
 
-        if opcao_grafico == 'TreeMap':
-          fig = px.treemap(state.portifolio, path=['Setor', 'SubSetor', 'Ação'], values='%', height=700)
+        if opcao_grafico == 'Gráfico estilo Árvore':
+          fig = px.treemap(state.portifolio, path=['Setor', 'SubSetor', 'Ação'], values='%', height=700, title='Distribuição Setorial da sua Carteira (Verifique se os setores estão diversificados)')
 
           fig.update_traces(textfont_color='white',
                             textfont_size=14,
-                            hovertemplate='<b>%{label}:</b> %{value:.2f}%')
+                            hovertemplate='<b>%{label}:</b> %{value:.2%}')
           st.plotly_chart(fig)
       #except:
         #st.write('Ops! Isso é ruim.')
