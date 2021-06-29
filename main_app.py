@@ -35,8 +35,8 @@ def main():
     st.sidebar.markdown("***")
     st.sidebar.markdown('''<small>Criado por Roberto Martins</small>''', unsafe_allow_html=True)
     st.sidebar.markdown('''<small>rraires.dev@gmail.com</small>''', unsafe_allow_html=True)
-    #puxar_tickers_investing(state)
-    puxar_tickers_grafbolsa(state)
+    puxar_tickers_investing(state)
+    #puxar_tickers_grafbolsa(state)
 
     ###### Iniciar o DataFrame do Portifolio, somente no primeiro carregamento da Página
 
