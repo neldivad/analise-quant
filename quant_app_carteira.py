@@ -56,6 +56,7 @@ def carteira(state):
   calculo_hedge(state)
   calculo_correlacao(state)
   calculo_setorial(state)
+  calculo_risco_retorno(state)
 
   st.markdown("***")
 
@@ -68,7 +69,7 @@ def carteira(state):
           a sua carteira tende a variar 1,2%.
         - **Correlação** - Demonstra o comportamento de um ativo em relação a outro, ou seja, em um determinado periodo, como este ativo
           se moveu em relação ao outro. Ela pode ser positiva (ativo se movimenta na mesma direção do outro) ou negativa. 
-          Faixas: 0% a 30% - Sem correlação, ou correlação muito fraca. 30% a 70% - Correlação moderada. 70% a 100% - Correlação alta.
+          Faixas: 0% a 40% - Sem correlação, ou correlação muito fraca. 40% a 70% - Correlação moderada. 70% a 100% - Correlação alta.
         """
     )
 
@@ -166,7 +167,7 @@ def calculo_hedge(state):
 
 def calculo_correlacao(state):
   with st.beta_expander("Correlação entre os Ativos e os Indices (IBOV e Dolar)", expanded=True):
-    if st.checkbox('Análise de Correlação', help='Mostra a Correlação dos ativos da sua Carteira em relação ao IBOV e Dolar, e também a correlação entre eles. Faixas: 0% a 30% - Sem correlação, ou correlação muito fraca. 30% a 70% - Correlação moderada. 70% a 100% - Correlação alta.'):
+    if st.checkbox('Análise de Correlação', help='Mostra a Correlação dos ativos da sua Carteira em relação ao IBOV e Dolar, e também a correlação entre eles. Faixas: 0% a 40% - Sem correlação, ou correlação muito fraca. 40% a 70% - Correlação moderada. 70% a 100% - Correlação alta.'):
       #try:
         periodo = st.radio('Período de correlação:',['3 meses', '6 meses', '1 ano'], index=2)
         if periodo == '3 meses': periodo = '3mo'
@@ -232,21 +233,55 @@ def calculo_correlacao(state):
 def calculo_setorial(state):
   with st.beta_expander("Análise Setorial da sua Carteira", expanded=True):
     if st.checkbox('Análise Setorial', help='Verifique como está a distribuição da sua Carteira em relação aos setores do mercado. Quanto mais diversificado, melhor.'):
-      #try:
-        opcao_grafico = st.radio('Selecione o tipo de Gráfico', ['Gráfico estilo Pizza', 'Gráfico estilo Árvore'])
-        if opcao_grafico == 'Gráfico estilo Pizza':
-          fig = px.sunburst(state.portifolio, path=['Setor', 'SubSetor', 'Ação'], values='%', height=700, title='Distribuição Setorial da sua Carteira (Verifique se os setores estão diversificados)')
-          fig.update_traces(textfont_color='white',
-                            textfont_size=14,
-                            hovertemplate='<b>%{label}:</b> %{value:.2%}')
-          st.plotly_chart(fig)
+      if len(state.portifolio) <= 1:
+        st.error('Insira ao menos 2 ativos!')
+      else:
+        #try:
+          opcao_grafico = st.radio('Selecione o tipo de Gráfico', ['Gráfico estilo Pizza', 'Gráfico estilo Árvore'])
+          if opcao_grafico == 'Gráfico estilo Pizza':
+            fig = px.sunburst(state.portifolio, path=['Setor', 'SubSetor', 'Ação'], values='%', height=700, title='Distribuição Setorial da sua Carteira (Verifique se os setores estão diversificados)')
+            fig.update_traces(textfont_color='white',
+                              textfont_size=14,
+                              hovertemplate='<b>%{label}:</b> %{value:.2%}')
+            st.plotly_chart(fig)
 
-        if opcao_grafico == 'Gráfico estilo Árvore':
-          fig = px.treemap(state.portifolio, path=['Setor', 'SubSetor', 'Ação'], values='%', height=700, title='Distribuição Setorial da sua Carteira (Verifique se os setores estão diversificados)')
+          if opcao_grafico == 'Gráfico estilo Árvore':
+            fig = px.treemap(state.portifolio, path=['Setor', 'SubSetor', 'Ação'], values='%', height=700, title='Distribuição Setorial da sua Carteira (Verifique se os setores estão diversificados)')
 
-          fig.update_traces(textfont_color='white',
-                            textfont_size=14,
-                            hovertemplate='<b>%{label}:</b> %{value:.2%}')
-          st.plotly_chart(fig)
-      #except:
-        #st.write('Ops! Isso é ruim.')
+            fig.update_traces(textfont_color='white',
+                              textfont_size=14,
+                              hovertemplate='<b>%{label}:</b> %{value:.2%}')
+            st.plotly_chart(fig)
+        #except:
+          #st.write('Ops! Isso é ruim.')
+
+def calculo_risco_retorno(state):
+  with st.beta_expander("Análise de Risco e Retorno", expanded=True):
+    if st.checkbox('Risco e Retorno', help='Veja a relação entre Risco e Retorno de cada ativo da sua carteira.'):
+      tickers = state.portifolio['Ação'] + ".SA"
+      tickers = tickers.to_list()
+      retornos_carteira = yf.download(tickers, period='1y')['Adj Close'].pct_change()
+      # Retira o sufixo .SA do nome das colunas
+      retornos_carteira.columns = retornos_carteira.columns.str.rstrip('.SA')
+      # Calcula o desvio-padrão e o retorno anualizados
+      vol     = retornos_carteira.std() * (252 ** 0.5)
+      retorno = retornos_carteira.mean() * 252
+      fig = px.scatter(x=vol, y=retorno, text=vol.index, color=retorno/vol, hover_name=vol.index )
+
+      fig.update_traces(textfont_color='white', 
+                        marker=dict(size=45),
+                        textfont_size=10,                  
+                        hovertemplate='<b>%{text}</b>'+
+                                      '<br><b>Retorno: </b> %{y:.0%}'+
+                                      '<br><b>Volatilidade:</b> %{x:.0%}')
+
+      fig.layout.yaxis.title = 'Retorno (médio an.)'
+      fig.layout.xaxis.title = 'Volatilidade (média an.)'
+      fig.layout.height = 700
+      fig.layout.xaxis.tickformat = ".0%"
+      fig.layout.yaxis.tickformat = ".0%"
+      fig.layout.title = 'Risco x Retorno últimos 12 meses'
+      fig.layout.coloraxis.colorbar.title = 'Retorno/Risco'
+
+      fig.layout.template = 'plotly_white'
+      st.plotly_chart(fig)
