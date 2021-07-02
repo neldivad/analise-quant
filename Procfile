@@ -1,1 +1,1 @@
-web: sh setup.sh && streamlit run msg_manut.py
+web: sh setup.sh && streamlit run main_app.py
