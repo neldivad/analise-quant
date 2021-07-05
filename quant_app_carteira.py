@@ -45,9 +45,8 @@ def carteira():
                                                          "Beta do Ativo": "{:.2}", "%": "{:.0%}", "Beta Ponderado": "{:.2}"})
 
   st.subheader('**Carteira**') 
-  #st.table(portifolio_style) # Mostra o DataFrame
-  df = pd.DataFrame(np.random.randn(10, 5), columns = ('col %d' % i for i in range(5)))
-  st.table(df)
+  st.table(st.session_state.portifolio) # Mostra o DataFrame
+
 
   if st.session_state.portifolio.shape[0] != 0:
     st.session_state.valor_carteira = st.session_state.portifolio['Valor na Carteira'].sum() # Obtem o valor total da Carteira
