@@ -45,7 +45,13 @@ def carteira():
   #                                                       "Beta do Ativo": "{:.2}", "%": "{:.0%}", "Beta Ponderado": "{:.2}"})
   portifolio_style = portifolio_style.style.format({"Últ. Preço": "R${:20,.2f}"})
   st.subheader('**Carteira**') 
-  st.table(portifolio_style) # Mostra o DataFrame
+  #st.table(portifolio_style) # Mostra o DataFrame
+
+  df = pd.DataFrame(np.random.randn(10, 5), columns = ('col %d' % i for i in range(5)))
+  df_formatado = df.style.format({"col 0":"R${:20,.2f}"})
+
+  st.write(df_formatado)
+
 
   if st.session_state.portifolio.shape[0] != 0:
     st.session_state.valor_carteira = st.session_state.portifolio['Valor na Carteira'].sum() # Obtem o valor total da Carteira
