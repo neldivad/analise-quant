@@ -17,6 +17,8 @@ def carteira():
   st.header('Análise da Carteira')
   st.write(os.popen(f'streamlit --version').read())
   st.write(os.popen(f'python --version').read())
+  st.write(os.popen(f'pip show pandas | findstr Version').read())
+
   with st.form(key='Carteira_Inserir_Ativos'):
     st.markdown('Insira os Ativos que compõem sua Carteira')
     col1, col2 = st.beta_columns(2)
