@@ -1,36 +1,34 @@
 import streamlit as st
-from streamlit.hashing import _CodeHasher
 import numpy as np
 import pandas as pd
 import yfinance as yf
-import investpy as inv
-import time
-import matplotlib.pyplot as plt
+#import time
+#import matplotlib.pyplot as plt
 import plotly.express as px
-import seaborn as sns
-import cufflinks as cf
-import datetime
-from datetime import date
+#import seaborn as sns
+#import cufflinks as cf
+#import datetime
+#from datetime import date
 import math
 
-def correlacao(state):
+def correlacao():
   st.header('Análise de Correlação entre Ativos')
   with st.form(key='Correlacao_Inserir_Ativos'):
-    state.tickers_sel = st.multiselect('Insira os Ativos para analisar as correlações', state.lista_tickers)
+    st.session_state.tickers_sel = st.multiselect('Insira os Ativos para analisar as correlações', st.session_state.lista_tickers)
     if st.form_submit_button(label='Analisar Correlações'): 
-      if len(state.tickers_sel) == 0:
+      if len(st.session_state.tickers_sel) == 0:
         st.error('Lista Vazia. Insira ao menos 1 ativo!')
 
-  if len(state.tickers_sel) != 0: # Se a lista estiver vazia, não mostra nada
-    calcular_correlacoes(state)
+  if len(st.session_state.tickers_sel) != 0: # Se a lista estiver vazia, não mostra nada
+    calcular_correlacoes()
 
 def fix_col_names(df): # Função para tirar os .SA ou corrigir os simbolos
   return ['IBOV' if col =='^BVSP' else col.rstrip('.SA') for col in df.columns]
 
-def calcular_correlacoes(state):
-  tickers = [item + '.SA' for item in state.tickers_sel] # Adicionar o '.SA' nos tickers
+def calcular_correlacoes():
+  tickers = [item + '.SA' for item in st.session_state.tickers_sel] # Adicionar o '.SA' nos tickers
   tickers += ['^BVSP', 'USDBRL=X']
-  #state.tickers_corr = state.tickers_sel + ['^BVSP', 'USDBRL=X'] # Adiciona os Indices para comparação
+  #st.session_state.tickers_corr = st.session_state.tickers_sel + ['^BVSP', 'USDBRL=X'] # Adiciona os Indices para comparação
   retornos = yf.download(tickers, period='1y', progress=False)["Adj Close"].pct_change()
   retornos = retornos.rename(columns={'^BVSP': 'IBOV', 'USDBRL=X': 'Dolar'}) # Renomeia as Colunas
   retornos = retornos.fillna(method='bfill')

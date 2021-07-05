@@ -1,5 +1,4 @@
 import streamlit as st
-from streamlit.hashing import _CodeHasher
 import numpy as np
 import pandas as pd
 import yfinance as yf
@@ -11,41 +10,42 @@ import plotly.express as px
 #import datetime
 #from datetime import date
 import math
+import fundamentus
 
-def carteira(state):
+def carteira():
   st.header('Análise da Carteira')
   with st.form(key='Carteira_Inserir_Ativos'):
     st.markdown('Insira os Ativos que compõem sua Carteira')
     col1, col2 = st.beta_columns(2)
     with col1:
-      state.papel = st.selectbox('Insira o Ativo', state.lista_tickers, help='Insira o ativo no caixa de seleção(Não é necessario apagar o ativo, apenas clique e digite as iniciais que a busca irá encontrar)')
+      st.session_state.papel = st.selectbox('Insira o Ativo', st.session_state.lista_tickers, help='Insira o ativo no caixa de seleção(Não é necessario apagar o ativo, apenas clique e digite as iniciais que a busca irá encontrar)')
     with col2:
-      state.lote = st.text_input('Quantidade',value='100')
+      st.session_state.lote = st.text_input('Quantidade',value='100')
 
     col1, col2, col3, col4 = st.beta_columns([.4,.7,.9,1]) # Cria as colunas para disposição dos botões. Os numeros são os tamanhos para o alinhamento
     with col2:
       if st.form_submit_button(label='Inserir Ativo', help='Clique para inserir o Ativo e a Quantidade na Carteira'):
-        botao_inserir(state)
+        botao_inserir()
 
     with col3:
       if st.form_submit_button(label='Apagar Último Ativo', help='Clique para apagar o último Ativo inserido'):
-        botao_apagar_ultimo(state)
+        botao_apagar_ultimo()
 
     with col4:
       if st.form_submit_button(label='Limpar Carteira', help='Clique para apagar todos os Ativos da Carteira'):
-        botao_apagar_tudo(state)
+        botao_apagar_tudo()
 
   st.markdown("***")
 
-  portifolio_style = state.portifolio.set_index('Ação') # Espelha o dataframe, com index na Ação, para fazer a formatação e mostrar
+  portifolio_style = st.session_state.portifolio.set_index('Ação') # Espelha o dataframe, com index na Ação, para fazer a formatação e mostrar
   portifolio_style = portifolio_style.style.format({"Últ. Preço": "R${:20,.2f}", "Valor na Carteira": "R${:20,.2f}", 
                                                           "Beta do Ativo": "{:.2}", "%": "{:.0%}", "Beta Ponderado": "{:.2}"})
 
   st.subheader('**Carteira**') 
   st.table(portifolio_style,) # Mostra o DataFrame
-  if state.portifolio.shape[0] != 0:
-    state.valor_carteira = state.portifolio['Valor na Carteira'].sum() # Obtem o valor total da Carteira
-    st.write('**Valor Total da Carteira: **', 'R${:20,.2f}'.format(state.valor_carteira))
+  if st.session_state.portifolio.shape[0] != 0:
+    st.session_state.valor_carteira = st.session_state.portifolio['Valor na Carteira'].sum() # Obtem o valor total da Carteira
+    st.write('**Valor Total da Carteira: **', 'R${:20,.2f}'.format(st.session_state.valor_carteira))
   
   st.markdown("***")
 
@@ -53,10 +53,10 @@ def carteira(state):
 
   # Chamar as funções para os cálculos e análises
 
-  calculo_hedge(state)
-  calculo_correlacao(state)
-  calculo_setorial(state)
-  calculo_risco_retorno(state)
+  calculo_hedge()
+  calculo_correlacao()
+  calculo_setorial()
+  calculo_risco_retorno()
 
   st.markdown("***")
 
@@ -78,65 +78,71 @@ def carteira(state):
 def fix_col_names(df): # Função para tirar os .SA ou corrigir os simbolos
   return ['IBOV' if col =='^BVSP' else col.rstrip('.SA') for col in df.columns]
 
-def calc_porc_e_betapond(state):
-  state.portifolio['%'] = (state.portifolio['Valor na Carteira'] / state.portifolio['Valor na Carteira'].sum()) 
-  state.portifolio['Beta Ponderado'] = state.portifolio['%']  * state.portifolio['Beta do Ativo']
+def calc_porc_e_betapond():
+  st.session_state.portifolio['%'] = (st.session_state.portifolio['Valor na Carteira'] / st.session_state.portifolio['Valor na Carteira'].sum())
+  st.session_state.portifolio['Beta Ponderado'] = st.session_state.portifolio['%']  * st.session_state.portifolio['Beta do Ativo']
 
-def botao_inserir(state):
+def botao_inserir():
   try:
-    if any(state.portifolio['Ação']==state.papel): # Verificar se o Ativo já existe no DataFrame(Carteira)
+    if any(st.session_state.portifolio['Ação']==st.session_state.papel): # Verificar se o Ativo já existe no DataFrame(Carteira)
       st.error('Ativo já existe na carteira. Por favor verifique!')
     else:
-      ticker = yf.Ticker(state.papel + '.SA')
-      #ultimo_preco = yf.download(state.papel + '.SA',period='1d')['Adj Close'][0] #Pegar o ultimo preço de fechamento da lista
-      precos = yf.download([state.papel + '.SA', '^BVSP'],period='1y', progress=False)['Adj Close']
+      #ticker = yf.Ticker(st.session_state.papel + '.SA')
+      #ultimo_preco = yf.download(st.session_state.papel + '.SA',period='1d')['Adj Close'][0] #Pegar o ultimo preço de fechamento da lista
+      precos = yf.download([st.session_state.papel + '.SA', '^BVSP'],period='1y', progress=False)['Adj Close']
       precos = precos.fillna(method='bfill')
-      ultimo_preco = precos[state.papel + '.SA'].tail(1)[0] # Ultimo preço do Ativo
+      ultimo_preco = precos[st.session_state.papel + '.SA'].tail(1)[0] # Ultimo preço do Ativo
       retornos = precos.pct_change()
       retornos = retornos[1:]
-      std_asset = retornos[state.papel + '.SA'].std()
+      std_asset = retornos[st.session_state.papel + '.SA'].std()
       std_bench = retornos['^BVSP'].std()
-      corr = retornos[state.papel + '.SA'].corr(retornos['^BVSP'])
+      corr = retornos[st.session_state.papel + '.SA'].corr(retornos['^BVSP'])
       beta = corr * (std_asset / std_bench)
-      valor_total = float(state.lote) * float(ultimo_preco)
-      setor = ticker.info['sector']
-      subsetor = ticker.info['industry']
-      if setor == '' or subsetor =='':
-        setor = 'ETF'
-        subsetor = ticker.info['shortName']
-      if 'FII' in ticker.info['shortName']:
-        setor = 'FII'
-      state.portifolio = state.portifolio.append({'Ação': state.papel, 'Qtde': state.lote, 'Últ. Preço': ultimo_preco, 'Valor na Carteira': valor_total,
+      valor_total = float(st.session_state.lote) * float(ultimo_preco)
+      #setor = ticker.info['sector']
+      #subsetor = ticker.info['industry']
+      #if setor == '' or subsetor =='':
+      #  setor = 'ETF'
+      #  subsetor = ticker.info['shortName']
+      #if 'FII' in ticker.info['shortName']:
+      #  setor = 'FII'
+      try:
+        setor = fundamentus.get_papel(st.session_state.papel)['Setor'][0]
+        subsetor = fundamentus.get_papel(st.session_state.papel)['Subsetor'][0]
+      except:
+        setor = 'ETFs / FIIs'
+        subsetor = 'ETFs / FIIs'
+      st.session_state.portifolio = st.session_state.portifolio.append({'Ação': st.session_state.papel, 'Qtde': st.session_state.lote, 'Últ. Preço': ultimo_preco, 'Valor na Carteira': valor_total,
                                                   'Setor': setor, 'SubSetor': subsetor, 'Beta do Ativo': beta}, ignore_index=True)
-      calc_porc_e_betapond(state)
+      calc_porc_e_betapond()
 
   except:
     st.error('Ops! Verifique as informações.')
 
-def botao_apagar_ultimo(state):
-  state.portifolio.drop(state.portifolio.tail(1).index,inplace=True) # Apaga o ultimo registro do DataFrame
-  calc_porc_e_betapond(state)
+def botao_apagar_ultimo():
+  st.session_state.portifolio.drop(st.session_state.portifolio.tail(1).index,inplace=True) # Apaga o ultimo registro do DataFrame
+  calc_porc_e_betapond()
 
-def botao_apagar_tudo(state):
-  state.portifolio = pd.DataFrame()
-  state.portifolio['Ação'] = ''
-  state.portifolio['Qtde'] = ''
-  state.portifolio['Últ. Preço'] = ''
-  state.portifolio['Valor na Carteira'] = ''
-  #state.portifolio['%'] = ''
-  state.portifolio['Setor'] = ''
-  state.portifolio['SubSetor'] = ''
-  state.portifolio['Beta do Ativo'] = ''
-  #state.portifolio['Beta Ponderado'] = ''
+def botao_apagar_tudo():
+  st.session_state.portifolio = pd.DataFrame()
+  st.session_state.portifolio['Ação'] = ''
+  st.session_state.portifolio['Qtde'] = ''
+  st.session_state.portifolio['Últ. Preço'] = ''
+  st.session_state.portifolio['Valor na Carteira'] = ''
+  #st.session_state.portifolio['%'] = ''
+  st.session_state.portifolio['Setor'] = ''
+  st.session_state.portifolio['SubSetor'] = ''
+  st.session_state.portifolio['Beta do Ativo'] = ''
+  #st.session_state.portifolio['Beta Ponderado'] = ''
 
-def calculo_hedge(state):
+def calculo_hedge():
   with st.beta_expander("Beta da Carteira e Informações sobre Hedge(Proteção)", expanded=True):
     if st.checkbox('Calcular o Beta da Carteira e Hedge de proteção', help='O Beta da Carteira irá mostrar o quanto ela está relacionada com o mercado, e o Hedge te trará informações sobre proteção. Beta calculado sobre o periodo de 1 ano de histórico dos ativos.'):
-      if state.portifolio.shape[0] != 0:
+      if st.session_state.portifolio.shape[0] != 0:
         #try:
           # Cálculos
-          beta_carteira = state.portifolio['Beta Ponderado'].sum().round(2)
-          valor_carteira = state.portifolio['Valor na Carteira'].sum() # Obtem o valor total da Carteira
+          beta_carteira = st.session_state.portifolio['Beta Ponderado'].sum().round(2)
+          valor_carteira = st.session_state.portifolio['Valor na Carteira'].sum() # Obtem o valor total da Carteira
           preco_bova11 = yf.download('BOVA11.sa', period='1d', progress=False)['Adj Close'][0] # Pega último preço do BOVA11
           preco_winfut = yf.download('^BVSP', period='1d', progress=False)['Adj Close'][0] # Pega último preço do WINFUT(IBOV)
           #qtde_bova11 = (valor_carteira / preco_bova11) * beta_carteira # Qtde de lotes de BOVA11 para fazer Hedge
@@ -165,7 +171,7 @@ def calculo_hedge(state):
       else:
         st.write("**Carteira Vazia!**")
 
-def calculo_correlacao(state):
+def calculo_correlacao():
   with st.beta_expander("Correlação entre os Ativos e os Indices (IBOV e Dolar)", expanded=True):
     if st.checkbox('Análise de Correlação', help='Mostra a Correlação dos ativos da sua Carteira em relação ao IBOV e Dolar, e também a correlação entre eles. Faixas: 0% a 40% - Sem correlação, ou correlação muito fraca. 40% a 70% - Correlação moderada. 70% a 100% - Correlação alta.'):
       #try:
@@ -230,23 +236,23 @@ def calculo_correlacao(state):
       #except:
         #st.error('Algo errado aconteceu. Verifique as informações ou pode ser que algum ativo esteja apresentando problemas com seus dados.')
 
-def calculo_setorial(state):
+def calculo_setorial():
   with st.beta_expander("Análise Setorial da sua Carteira", expanded=True):
     if st.checkbox('Análise Setorial', help='Verifique como está a distribuição da sua Carteira em relação aos setores do mercado. Quanto mais diversificado, melhor.'):
-      if len(state.portifolio) <= 1:
+      if len(st.session_state.portifolio) <= 1:
         st.error('Insira ao menos 2 ativos!')
       else:
         #try:
           opcao_grafico = st.radio('Selecione o tipo de Gráfico', ['Gráfico estilo Pizza', 'Gráfico estilo Árvore'])
           if opcao_grafico == 'Gráfico estilo Pizza':
-            fig = px.sunburst(state.portifolio, path=['Setor', 'SubSetor', 'Ação'], values='%', height=700, title='Distribuição Setorial da sua Carteira (Verifique se os setores estão diversificados)')
+            fig = px.sunburst(st.session_state.portifolio, path=['Setor', 'SubSetor', 'Ação'], values='%', height=700, title='Distribuição Setorial da sua Carteira (Verifique se os setores estão diversificados)')
             fig.update_traces(textfont_color='white',
                               textfont_size=14,
                               hovertemplate='<b>%{label}:</b> %{value:.2%}')
             st.plotly_chart(fig)
 
           if opcao_grafico == 'Gráfico estilo Árvore':
-            fig = px.treemap(state.portifolio, path=['Setor', 'SubSetor', 'Ação'], values='%', height=700, title='Distribuição Setorial da sua Carteira (Verifique se os setores estão diversificados)')
+            fig = px.treemap(st.session_state.portifolio, path=['Setor', 'SubSetor', 'Ação'], values='%', height=700, title='Distribuição Setorial da sua Carteira (Verifique se os setores estão diversificados)')
 
             fig.update_traces(textfont_color='white',
                               textfont_size=14,
@@ -255,10 +261,10 @@ def calculo_setorial(state):
         #except:
           #st.write('Ops! Isso é ruim.')
 
-def calculo_risco_retorno(state):
+def calculo_risco_retorno():
   with st.beta_expander("Análise de Risco e Retorno", expanded=True):
     if st.checkbox('Risco e Retorno', help='Veja a relação entre Risco e Retorno de cada ativo da sua carteira.'):
-      tickers = state.portifolio['Ação'] + ".SA"
+      tickers = st.session_state.portifolio['Ação'] + ".SA"
       tickers = tickers.to_list()
       retornos_carteira = yf.download(tickers, period='1y')['Adj Close'].pct_change()
       # Retira o sufixo .SA do nome das colunas
