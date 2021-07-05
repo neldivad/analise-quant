@@ -15,9 +15,10 @@ import os
 
 def carteira():
   st.header('Análise da Carteira')
-  st.write(os.popen(f'streamlit --version').read())
-  st.write(os.popen(f'python --version').read())
-  st.write('Versão do Pandas: ', pd.__version__)
+  #Mostrar versões das bibliotecas
+  #st.write(os.popen(f'streamlit --version').read())
+  #st.write(os.popen(f'python --version').read())
+  #st.write('Versão do Pandas: ', pd.__version__)
 
   with st.form(key='Carteira_Inserir_Ativos'):
     st.markdown('Insira os Ativos que compõem sua Carteira')
@@ -43,17 +44,10 @@ def carteira():
   st.markdown("***")
 
   portifolio_style = st.session_state.portifolio.set_index('Ação') # Espelha o dataframe, com index na Ação, para fazer a formatação e mostrar
-  #portifolio_style = portifolio_style.style.format({"Últ. Preço": "R${:20,.2f}", "Valor na Carteira": "R${:20,.2f}",
-  #                                                       "Beta do Ativo": "{:.2}", "%": "{:.0%}", "Beta Ponderado": "{:.2}"})
-  portifolio_style = portifolio_style.style.format({"Últ. Preço": "R${:20,.2f}"})
+  portifolio_style = portifolio_style.style.format({"Últ. Preço": "R${:20,.2f}", "Valor na Carteira": "R${:20,.2f}",
+                                                         "Beta do Ativo": "{:.2}", "%": "{:.0%}", "Beta Ponderado": "{:.2}"})
   st.subheader('**Carteira**') 
-  #st.table(portifolio_style) # Mostra o DataFrame
-
-  df = pd.DataFrame(np.random.randn(10, 5), columns = ('col %d' % i for i in range(5)))
-  df_formatado = df.style.format({"col 0":"R${:20,.2f}"})
-
-  st.write(df_formatado)
-
+  st.table(portifolio_style) # Mostra o DataFrame
 
   if st.session_state.portifolio.shape[0] != 0:
     st.session_state.valor_carteira = st.session_state.portifolio['Valor na Carteira'].sum() # Obtem o valor total da Carteira
