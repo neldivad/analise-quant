@@ -41,8 +41,8 @@ def carteira():
   st.markdown("***")
 
   portifolio_style = st.session_state.portifolio.set_index('Ação') # Espelha o dataframe, com index na Ação, para fazer a formatação e mostrar
-  #portifolio_style = portifolio_style.style.format({"Últ. Preço": "R${:20,.2f}", "Valor na Carteira": "R${:20,.2f}",
-  #                                                       "Beta do Ativo": "{:.2}", "%": "{:.0%}", "Beta Ponderado": "{:.2}"})
+  portifolio_style = portifolio_style.style.format({"Últ. Preço": "R${:20,.2f}", "Valor na Carteira": "R${:20,.2f}",
+                                                         "Beta do Ativo": "{:.2}", "%": "{:.0%}", "Beta Ponderado": "{:.2}"})
 
   st.subheader('**Carteira**') 
   #st.table(portifolio_style) # Mostra o DataFrame
