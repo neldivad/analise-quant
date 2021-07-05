@@ -185,7 +185,7 @@ def calculo_correlacao():
         if periodo == '3 meses': periodo = '3mo'
         if periodo == '6 meses': periodo = '6mo'
         if periodo == '1 ano': periodo = '1y'
-        tickers = state.portifolio['Ação'] + ".SA"
+        tickers = st.session_state.portifolio['Ação'] + ".SA"
         tickers = tickers.to_list()
         tickers += ['^BVSP', 'USDBRL=X'] # Adicionar os indices na comparação
 
