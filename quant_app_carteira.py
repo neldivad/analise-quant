@@ -271,62 +271,68 @@ def calculo_setorial():
 def calculo_risco_retorno():
   with st.beta_expander("Análise de Risco e Retorno", expanded=True):
     if st.checkbox('Risco e Retorno', help='Veja a relação entre Risco e Retorno de cada ativo da sua carteira.'):
-      tickers = st.session_state.portifolio['Ação'] + ".SA"
-      tickers = tickers.to_list()
-      retornos_carteira = yf.download(tickers, period='1y')['Adj Close'].pct_change()
-      # Retira o sufixo .SA do nome das colunas
-      retornos_carteira.columns = retornos_carteira.columns.str.rstrip('.SA')
-      # Calcula o desvio-padrão e o retorno anualizados
-      vol     = retornos_carteira.std() * (252 ** 0.5)
-      retorno = retornos_carteira.mean() * 252
-      fig = px.scatter(x=vol, y=retorno, text=vol.index, color=retorno/vol, hover_name=vol.index )
+      if len(st.session_state.portifolio) <= 1:
+        st.error('Insira ao menos 2 ativos!')
+      else:
+        tickers = st.session_state.portifolio['Ação'] + ".SA"
+        tickers = tickers.to_list()
+        retornos_carteira = yf.download(tickers, period='1y')['Adj Close'].pct_change()
+        # Retira o sufixo .SA do nome das colunas
+        retornos_carteira.columns = retornos_carteira.columns.str.rstrip('.SA')
+        # Calcula o desvio-padrão e o retorno anualizados
+        vol     = retornos_carteira.std() * (252 ** 0.5)
+        retorno = retornos_carteira.mean() * 252
+        fig = px.scatter(x=vol, y=retorno, text=vol.index, color=retorno/vol, hover_name=vol.index )
 
-      fig.update_traces(textfont_color='white', 
-                        marker=dict(size=45),
-                        textfont_size=10,                  
-                        hovertemplate='<b>%{text}</b>'+
-                                      '<br><b>Retorno: </b> %{y:.0%}'+
-                                      '<br><b>Volatilidade:</b> %{x:.0%}')
+        fig.update_traces(textfont_color='white',
+                          marker=dict(size=45),
+                          textfont_size=10,
+                          hovertemplate='<b>%{text}</b>'+
+                                        '<br><b>Retorno: </b> %{y:.0%}'+
+                                        '<br><b>Volatilidade:</b> %{x:.0%}')
 
-      fig.layout.yaxis.title = 'Retorno (médio an.)'
-      fig.layout.xaxis.title = 'Volatilidade (média an.)'
-      fig.layout.height = 700
-      fig.layout.xaxis.tickformat = ".0%"
-      fig.layout.yaxis.tickformat = ".0%"
-      fig.layout.title = 'Risco x Retorno últimos 12 meses'
-      fig.layout.coloraxis.colorbar.title = 'Retorno/Risco'
+        fig.layout.yaxis.title = 'Retorno (médio an.)'
+        fig.layout.xaxis.title = 'Volatilidade (média an.)'
+        fig.layout.height = 700
+        fig.layout.xaxis.tickformat = ".0%"
+        fig.layout.yaxis.tickformat = ".0%"
+        fig.layout.title = 'Risco x Retorno últimos 12 meses'
+        fig.layout.coloraxis.colorbar.title = 'Retorno/Risco'
 
-      fig.layout.template = 'plotly_white'
-      st.plotly_chart(fig)
+        fig.layout.template = 'plotly_white'
+        st.plotly_chart(fig)
 
 def calculo_rentabilidade():
   with st.beta_expander("Simulaçação da rentabilidade da Carteira", expanded=True):
     if st.checkbox('Simulação de Rentabilidade', help='Simule o histórico de rentabilidade e conparações da sua carteira com IBOV.'):
-      tickers = st.session_state.portifolio['Ação'] + ".SA"
-      tickers = tickers.to_list()
-      carteira = yf.download(tickers, period='1y')['Adj Close']
-      carteira.dropna(inplace=True)
-      carteira.columns = fix_col_names(carteira)
+      if len(st.session_state.portifolio) <= 1:
+        st.error('Insira ao menos 2 ativos!')
+      else:
+        tickers = st.session_state.portifolio['Ação'] + ".SA"
+        tickers = tickers.to_list()
+        carteira = yf.download(tickers, period='1y')['Adj Close']
+        carteira.dropna(inplace=True)
+        carteira.columns = fix_col_names(carteira)
 
-      ibov = yf.download('^BVSP', period='1y')['Adj Close']
-      ibov.dropna(inplace=True)
+        ibov = yf.download('^BVSP', period='1y')['Adj Close']
+        ibov.dropna(inplace=True)
 
-      valor_carteira = pd.DataFrame()
-      var_carteira = pd.DataFrame()
-      for ativo in carteira.columns:
-        var_carteira[ativo] = ((carteira[ativo] / carteira[ativo].iloc[0]) - 1) * 100
-        qtde = int(st.session_state.portifolio[st.session_state.portifolio['Ação'] == ativo]['Qtde'].iloc[0])
-        valor_carteira['Total ' + ativo] = carteira[ativo] * qtde
+        valor_carteira = pd.DataFrame()
+        var_carteira = pd.DataFrame()
+        for ativo in carteira.columns:
+          var_carteira[ativo] = ((carteira[ativo] / carteira[ativo].iloc[0]) - 1) * 100
+          qtde = int(st.session_state.portifolio[st.session_state.portifolio['Ação'] == ativo]['Qtde'].iloc[0])
+          valor_carteira['Total ' + ativo] = carteira[ativo] * qtde
 
-      valor_carteira['Total Carteira'] = valor_carteira.sum(axis=1)
-      var_carteira['Carteira'] = ((valor_carteira['Total Carteira'] / valor_carteira['Total Carteira'].iloc[0]) - 1) * 100
+        valor_carteira['Total Carteira'] = valor_carteira.sum(axis=1)
+        var_carteira['Carteira'] = ((valor_carteira['Total Carteira'] / valor_carteira['Total Carteira'].iloc[0]) - 1) * 100
 
-      ibov_var_pct = ((ibov / ibov.iloc[0]) - 1) * 100
-      var_carteira['IBOV'] = ibov_var_pct
+        ibov_var_pct = ((ibov / ibov.iloc[0]) - 1) * 100
+        var_carteira['IBOV'] = ibov_var_pct
 
-      fig = var_carteira.iplot(asFigure=True, xTitle='Data', yTitle='%', title='Variação Percentual da Carteira')
-      st.plotly_chart(fig)
-      st.markdown('Clique nos itens da Legenda para escolher quais visualizar ou não.')
+        fig = var_carteira.iplot(asFigure=True, xTitle='Data', yTitle='%', title='Variação Percentual da Carteira')
+        st.plotly_chart(fig)
+        st.markdown('Clique nos itens da Legenda para escolher quais visualizar ou não.')
 
 
 
