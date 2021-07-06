@@ -172,7 +172,8 @@ def calculo_hedge():
             st.write('**Preço BOVA11: **', 'R${:20,.2f}'.format(preco_bova11))
             st.write('**Preço WINFUT: **', 'R${:20,.2f}'.format(preco_winfut * 0.20), '(','{:.0f}'.format(preco_winfut), ' pontos)' )
             st.write('**Quantidade BOVA11 para Hedge: **', '{:.0f}'.format(qtde_bova11), '(','R${:20,.2f}'.format(qtde_bova11 * preco_bova11),')')
-            st.write('**Quantidade WINFUT para Hedge: **', '{:.0f}'.format(qtde_winfut), '(','R${:20,.2f}'.format(qtde_winfut * (preco_winfut * 0.20)),')')
+            if valor_carteira >= preco_winfut:
+              st.write('**Quantidade WINFUT para Hedge: **', '{:.0f}'.format(qtde_winfut), '(','R${:20,.2f}'.format(qtde_winfut * (preco_winfut * 0.20)),')')
         #except:
           #st.write('Ops! Algo deu errado!')
       else:
