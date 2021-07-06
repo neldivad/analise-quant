@@ -330,7 +330,7 @@ def calculo_rentabilidade():
         ibov_var_pct = ((ibov / ibov.iloc[0]) - 1) * 100
         var_carteira['IBOV'] = ibov_var_pct
 
-        fig = var_carteira.iplot(asFigure=True, xTitle='Data', yTitle='%', title='Variação Percentual da Carteira')
+        fig = var_carteira.iplot(asFigure=True, xTitle='Data', yTitle='%', title='Variação Percentual da Carteira - 1 ano')
         st.plotly_chart(fig)
         st.markdown('Clique nos itens da Legenda para escolher quais visualizar ou não.')
 
