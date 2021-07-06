@@ -326,6 +326,7 @@ def calculo_rentabilidade():
 
       fig = var_carteira.iplot(asFigure=True, xTitle='Data', yTitle='%', title='Variação Percentual da Carteira')
       st.plotly_chart(fig)
+      st.markdown('Clique nos itens da Legenda para escolher quais visualizar ou não.')
 
 
 
