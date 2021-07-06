@@ -1,6 +1,7 @@
 import streamlit as st
 import quant_app_carteira
 import quant_app_correlacao
+import quant_app_contato
 # import quant_app_carteira2
 # import quant_app_teste
 import yfinance as yf
@@ -16,7 +17,8 @@ def main():
     # Removing and add pages
     pages = {
         "Análise de Carteira": page_carteira,
-        "Análise de Correlações": page_correlacao
+        "Análise de Correlações": page_correlacao,
+        "Contato / Report de Erros": page_contato
     }
 
     st.sidebar.title(":chart: Análise Quant v.2")
@@ -51,6 +53,9 @@ def page_carteira():
 
 def page_correlacao():
     quant_app_correlacao.correlacao()
+
+def page_contato():
+    quant_app_contato.contato()
 
 def page_teste():
     quant_app_teste.teste()
