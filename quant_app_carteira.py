@@ -3,10 +3,10 @@ import numpy as np
 import pandas as pd
 import yfinance as yf
 #import time
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import plotly.express as px
-#import seaborn as sns
-#import cufflinks as cf
+import seaborn as sns
+import cufflinks as cf
 #import datetime
 #from datetime import date
 import math
@@ -63,6 +63,7 @@ def carteira():
   calculo_correlacao()
   calculo_setorial()
   calculo_risco_retorno()
+  calculo_rentabilidade()
 
   st.markdown("***")
 
@@ -297,3 +298,36 @@ def calculo_risco_retorno():
 
       fig.layout.template = 'plotly_white'
       st.plotly_chart(fig)
+
+def calculo_rentabilidade():
+  with st.beta_expander("Simulaçação da rentabilidade da Carteira", expanded=True):
+    if st.checkbox('Simulação de Rentabilidade', help='Simule o histórico de rentabilidade e conparações da sua carteira com IBOV.'):
+      tickers = st.session_state.portifolio['Ação'] + ".SA"
+      tickers = tickers.to_list()
+      carteira = yf.download(tickers, period='1y')['Adj Close']
+      carteira.dropna(inplace=True)
+      carteira.columns = fix_col_names(carteira)
+
+      ibov = yf.download('^BVSP', period='1y')['Adj Close']
+      ibov.dropna(inplace=True)
+
+      valor_carteira = pd.DataFrame()
+      var_carteira = pd.DataFrame()
+      for ativo in carteira.columns:
+        var_carteira[ativo] = ((carteira[ativo] / carteira[ativo].iloc[0]) - 1) * 100
+        qtde = int(st.session_state.portifolio[st.session_state.portifolio['Ação'] == ativo]['Qtde'].iloc[0])
+        valor_carteira['Total ' + ativo] = carteira[ativo] * qtde
+
+      valor_carteira['Total Carteira'] = valor_carteira.sum(axis=1)
+      var_carteira['Carteira'] = ((valor_carteira['Total Carteira'] / valor_carteira['Total Carteira'].iloc[0]) - 1) * 100
+
+      ibov_var_pct = ((ibov / ibov.iloc[0]) - 1) * 100
+      var_carteira['IBOV'] = ibov_var_pct
+
+      fig = var_carteira.iplot(asFigure=True, xTitle='Data', yTitle='%', title='Variação Percentual da Carteira')
+      st.plotly_chart(fig)
+
+
+
+
+
