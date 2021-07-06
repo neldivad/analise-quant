@@ -18,7 +18,7 @@ def main():
     pages = {
         "Análise de Carteira": page_carteira,
         "Análise de Correlações": page_correlacao,
-        "Contato / Report de Erros": page_contato
+        "Contato / Reporte de Erros": page_contato
     }
 
     st.sidebar.title(":chart: Análise Quant v.2")
