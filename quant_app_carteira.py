@@ -305,7 +305,7 @@ def calculo_risco_retorno():
 
 def calculo_rentabilidade():
   with st.beta_expander("Simulaçação da rentabilidade da Carteira", expanded=True):
-    if st.checkbox('Simulação de Rentabilidade', help='Simule o histórico de rentabilidade e conparações da sua carteira com IBOV.'):
+    if st.checkbox('Simulação de Rentabilidade', help='Simule o histórico de rentabilidade e comparações da sua carteira com IBOV.'):
       if len(st.session_state.portifolio) <= 1:
         st.error('Insira ao menos 2 ativos!')
       else:
