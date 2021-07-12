@@ -41,7 +41,7 @@ def sazonalidade():
     ticker = st.selectbox('Selecione a Ação ou Indice desejado', lista)
 
     if st.button('Analisar Sazonalidade'):
-        data_inicial = '01/01/1990'
+        data_inicial = '01/04/1995'
         data_final = date.today().strftime('%d/%m/%Y')
 
         # Dados do Investing - Pegar dados periodo Mensal
