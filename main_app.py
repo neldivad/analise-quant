@@ -1,11 +1,12 @@
 import streamlit as st
 import quant_app_carteira
 import quant_app_correlacao
+import quant_app_sazonalidade
 import quant_app_contato
 # import quant_app_carteira2
 # import quant_app_teste
 import yfinance as yf
-# mport investpy as inv
+#import investpy as inv
 import pandas as pd
 from datetime import datetime
 
@@ -17,7 +18,8 @@ def main():
     # Removing and add pages
     pages = {
         "Análise de Carteira": page_carteira,
-        "Análise de Correlações": page_correlacao,
+        "Correlações": page_correlacao,
+        "Sazonalidade do Mercado": page_sazonalidade,
         "Contato / Reporte de Erros": page_contato
     }
 
@@ -53,6 +55,9 @@ def page_carteira():
 
 def page_correlacao():
     quant_app_correlacao.correlacao()
+
+def page_sazonalidade():
+    quant_app_sazonalidade.sazonalidade()
 
 def page_contato():
     quant_app_contato.contato()
