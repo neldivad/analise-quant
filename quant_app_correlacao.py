@@ -12,7 +12,7 @@ import plotly.express as px
 import math
 
 def correlacao():
-  st.header('Análise de Correlação entre Ativos')
+  st.header('Análise de Correlação')
   with st.form(key='Correlacao_Inserir_Ativos'):
     st.session_state.tickers_sel = st.multiselect('Insira os Ativos para analisar as correlações',st.session_state.lista_tickers)
     if st.form_submit_button(label='Analisar Correlações'): 

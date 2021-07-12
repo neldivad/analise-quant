@@ -93,13 +93,24 @@ def analise_sazonalidade():
 
             # HeatMap Seaborn
             fig, ax = plt.subplots(figsize=(12, 9))
-            ax.set_title('Retornos Mensais', fontsize=18, position=(0.5, 1.08))
-            # ax.xaxis.tick_top() # x axis on top
-            ax.tick_params(labelsize=12, labeltop=True, labelbottom=False)  # x-axis
             cmap = sns.color_palette('RdYlGn', 50)
-            # cmap = sns.diverging_palette(250, 20, n=10)
             sns.heatmap(tabela_retornos, cmap=cmap, annot=True, fmt='.2%', center=0, vmax=0.02, vmin=-0.02, cbar=False,
-                        linewidths=1, )
+                        linewidths=1, xticklabels=True, yticklabels=True, ax=ax)
+            #ax.set_title('Retornos Mensais', fontsize=18)
+            ax.set_yticklabels(ax.get_yticklabels(), rotation=0, verticalalignment='center', fontsize='12')
+            ax.set_xticklabels(ax.get_xticklabels(), fontsize='12')
+            ax.xaxis.tick_top()  # x axis on top
+            plt.ylabel('')
+            st.pyplot()
+
+            # Media das rentabilidades
+            media = pd.DataFrame(tabela_retornos.mean())
+            media.columns = ['Média']
+            media = media.transpose()
+            fig, ax = plt.subplots(figsize=(12, 0.5))
+            sns.heatmap(media, cmap=cmap, annot=True, fmt='.2%', center=0, vmax=0.02, vmin=-0.02, cbar=False,
+                        linewidths=1, xticklabels=True, yticklabels=True, ax=ax)
+            ax.set_yticklabels(ax.get_yticklabels(), rotation=0, verticalalignment='center', fontsize='11')
             st.pyplot()
 
     with st.beta_expander("Sazonalidade Anual", expanded=True):
