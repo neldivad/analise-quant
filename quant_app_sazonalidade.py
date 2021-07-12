@@ -11,8 +11,6 @@ import seaborn as sns
 import datetime
 from datetime import date
 import math
-import quantstats as qs
-import monthly_returns_heatmap as mrh
 import statsmodels.api
 import statsmodels as sm
 
