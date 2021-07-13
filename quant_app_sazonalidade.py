@@ -41,7 +41,7 @@ def sazonalidade():
     ticker = st.selectbox('Selecione a Ação ou Indice desejado', lista)
 
     if st.button('Analisar Sazonalidade'):
-        data_inicial = '01/04/1995'
+        data_inicial = '01/12/1999'
         data_final = date.today().strftime('%d/%m/%Y')
 
         # Dados do Investing - Pegar dados periodo Mensal
@@ -96,7 +96,7 @@ def analise_sazonalidade():
             cmap = sns.color_palette('RdYlGn', 50)
             sns.heatmap(tabela_retornos, cmap=cmap, annot=True, fmt='.2%', center=0, vmax=0.02, vmin=-0.02, cbar=False,
                         linewidths=1, xticklabels=True, yticklabels=True, ax=ax)
-            #ax.set_title('Retornos Mensais', fontsize=18)
+            ax.set_title(ticker, fontsize=18)
             ax.set_yticklabels(ax.get_yticklabels(), rotation=0, verticalalignment='center', fontsize='12')
             ax.set_xticklabels(ax.get_xticklabels(), fontsize='12')
             ax.xaxis.tick_top()  # x axis on top
