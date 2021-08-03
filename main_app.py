@@ -9,6 +9,7 @@ import yfinance as yf
 #import investpy as inv
 import pandas as pd
 from datetime import datetime
+import os
 
 st.set_option('deprecation.showPyplotGlobalUse', False)  # Desabilitar os Warnigs sobre o Pyplot
 st.set_page_config(page_title='Análise Quant', layout='wide', initial_sidebar_state='auto')  # Configurar Pagina
@@ -26,6 +27,12 @@ def main():
     st.sidebar.title(":chart: Análise Quant v.2")
     page = st.sidebar.radio("Selecione a opção", tuple(pages.keys()))
     st.sidebar.markdown("***")
+    with st.sidebar.beta_expander('Versões'):
+        # Mostrar versões das bibliotecas
+        st.write(os.popen(f'python --version').read())
+        st.write('Streamlit:', st.__version__)
+        st.write('Pandas:', pd.__version__)
+        st.write('yfinance:', yf.__version__)
     st.sidebar.markdown('''<small>Criado por Roberto Martins</small>''', unsafe_allow_html=True)
     st.sidebar.markdown('''<small>rraires.dev@gmail.com</small>''', unsafe_allow_html=True)
     # puxar_tickers_investing()

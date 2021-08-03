@@ -11,7 +11,6 @@ import cufflinks as cf
 #from datetime import date
 import math
 import fundamentus
-import os
 
 def carteira():
   st.header('Análise da Carteira')
@@ -19,6 +18,7 @@ def carteira():
   #st.write(os.popen(f'streamlit --version').read())
   #st.write(os.popen(f'python --version').read())
   #st.write('Versão do Pandas: ', pd.__version__)
+  # st.write(os.popen(f'pip show yfinance').read())
 
   with st.form(key='Carteira_Inserir_Ativos'):
     st.markdown('Insira os Ativos que compõem sua Carteira')

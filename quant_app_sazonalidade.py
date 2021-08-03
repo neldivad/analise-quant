@@ -30,7 +30,8 @@ def sazonalidade():
     opcao = st.radio('', ('Ações', 'Indices'))
 
     if pais == 'Brasil' and opcao == 'Ações':
-        lista = inv.get_stocks_list(country='brazil')
+        #lista = inv.get_stocks_list(country='brazil')
+        lista = st.session_state.lista_tickers
     if pais == 'Brasil' and opcao == 'Indices':
         lista = inv.get_indices_list(country='brazil')
     if pais == 'Estados Unidos' and opcao == 'Ações':
@@ -46,12 +47,17 @@ def sazonalidade():
 
         # Dados do Investing - Pegar dados periodo Mensal
         if pais == 'Brasil' and opcao == 'Ações':
-            retornos = \
-            inv.get_stock_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final,
-                                          interval='Monthly')['Close'].pct_change(1)
-            preco = \
-            inv.get_stock_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final,
-                                          interval='Daily')['Close']
+            # retornos = \
+            # inv.get_stock_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final,
+            #                               interval='Monthly')['Close'].pct_change(1)
+            # preco = \
+            # inv.get_stock_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final,
+            #                               interval='Daily')['Close']
+            data_inicial = '1999-12-01'
+            data_final = date.today().strftime('%Y-%m-%d')
+            retornos = yf.download(ticker + '.SA', start= data_inicial, end=data_final, interval='1mo', progress=False)["Adj Close"].pct_change(1)
+            preco = yf.download(ticker + '.SA', start= data_inicial, end=data_final, progress=False)["Adj Close"]
+
         if pais == 'Brasil' and opcao == 'Indices':
             retornos = \
             inv.get_index_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final,
@@ -88,7 +94,10 @@ def analise_sazonalidade():
             retorno_mensal = retornos.groupby([retornos.index.year.rename('Year'), retornos.index.month.rename('Month')]).mean()
             # Criar e formatar a tabela pivot table
             tabela_retornos = pd.DataFrame(retorno_mensal)
-            tabela_retornos = pd.pivot_table(tabela_retornos, values='Close', index='Year', columns='Month')
+            try:
+                tabela_retornos = pd.pivot_table(tabela_retornos, values='Close', index='Year', columns='Month')
+            except:
+                tabela_retornos = pd.pivot_table(tabela_retornos, values='Adj Close', index='Year', columns='Month')
             tabela_retornos.columns = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
 
             # HeatMap Seaborn
