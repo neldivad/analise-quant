@@ -328,12 +328,16 @@ def calculo_rentabilidade():
         valor_carteira['Total Carteira'] = valor_carteira.sum(axis=1)
         var_carteira['Carteira'] = ((valor_carteira['Total Carteira'] / valor_carteira['Total Carteira'].iloc[0]) - 1) * 100
 
-        ibov_var_pct = ((ibov / ibov.iloc[0]) - 1) * 100
-        var_carteira['IBOV'] = ibov_var_pct
+        # ibov_var_pct = ((ibov / ibov.iloc[0]) - 1) * 100
+        # var_carteira['IBOV'] = ibov_var_pct
+        var_carteira['IBOV'] = ibov
+        var_carteira['IBOV'] = ((var_carteira['IBOV'] / var_carteira['IBOV'].iloc[0]) - 1) * 100
 
         fig = var_carteira.iplot(asFigure=True, xTitle='Data', yTitle='%', title='Variação Percentual da Carteira - 1 ano')
         st.plotly_chart(fig)
         st.markdown('Clique nos itens da Legenda para escolher quais visualizar ou não.')
+        if len(var_carteira) < 200:
+          st.error('Algum ativo da sua carteira possui menos de 1 ano de histórico. A rentabilidade da carteira será calculada a partir deste ativo.')
 
 
 
