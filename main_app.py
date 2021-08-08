@@ -24,7 +24,8 @@ def main():
         "Contato / Reporte de Erros": page_contato
     }
 
-    st.sidebar.title(":chart: Análise Quant v.2")
+    st.sidebar.image('./analisequant_logo-removebg.png')
+    #st.sidebar.title(":chart: Análise Quant")
     page = st.sidebar.radio("Selecione a opção", tuple(pages.keys()))
     st.sidebar.markdown("***")
     with st.sidebar.beta_expander('Versões'):
