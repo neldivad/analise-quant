@@ -47,54 +47,58 @@ def sazonalidade():
     # ticker = st.selectbox('Selecione a Ação ou Indice desejado', lista)
     #
     # if st.button('Analisar Sazonalidade'):
-            data_inicial = '01/12/1999'
-            data_final = date.today().strftime('%d/%m/%Y')
 
-            # Dados do Investing - Pegar dados periodo Mensal
-            if pais == 'Brasil' and opcao == 'Ações':
-                # retornos = \
-                # inv.get_stock_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final,
-                #                               interval='Monthly')['Close'].pct_change(1)
-                # preco = \
-                # inv.get_stock_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final,
-                #                               interval='Daily')['Close']
-                data_inicial = '1999-12-01'
-                data_final = date.today().strftime('%Y-%m-%d')
-                #retornos = yf.download(ticker + '.SA', start= data_inicial, end=data_final, interval='1mo', progress=False)["Adj Close"].pct_change(1)
-                preco = yf.download(ticker + '.SA', start= data_inicial, end=data_final, progress=False)["Adj Close"]
+            try:
                 data_inicial = '01/12/1999'
                 data_final = date.today().strftime('%d/%m/%Y')
-                retornos = \
-                inv.get_stock_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final,
-                                              interval='Monthly')['Close'].pct_change()
+
+                # Dados do Investing - Pegar dados periodo Mensal
+                if pais == 'Brasil' and opcao == 'Ações':
+                    # retornos = \
+                    # inv.get_stock_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final,
+                    #                               interval='Monthly')['Close'].pct_change(1)
+                    # preco = \
+                    # inv.get_stock_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final,
+                    #                               interval='Daily')['Close']
+                    data_inicial = '1999-12-01'
+                    data_final = date.today().strftime('%Y-%m-%d')
+                    #retornos = yf.download(ticker + '.SA', start= data_inicial, end=data_final, interval='1mo', progress=False)["Adj Close"].pct_change(1)
+                    preco = yf.download(ticker + '.SA', start= data_inicial, end=data_final, progress=False)["Adj Close"]
+                    data_inicial = '01/12/1999'
+                    data_final = date.today().strftime('%d/%m/%Y')
+                    retornos = \
+                    inv.get_stock_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final,
+                                                  interval='Monthly')['Close'].pct_change()
 
 
-            if pais == 'Brasil' and opcao == 'Indices':
-                retornos = \
-                inv.get_index_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final,
-                                              interval='Monthly')['Close'].pct_change(1)
-                preco = \
-                inv.get_index_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final,
-                                              interval='Daily')['Close']
-            if pais == 'Estados Unidos' and opcao == 'Ações':
-                retornos = \
-                    inv.get_stock_historical_data(ticker, country='united states', from_date=data_inicial,
-                                                  to_date=data_final,
+                if pais == 'Brasil' and opcao == 'Indices':
+                    retornos = \
+                    inv.get_index_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final,
                                                   interval='Monthly')['Close'].pct_change(1)
-                preco = \
-                    inv.get_stock_historical_data(ticker, country='united states', from_date=data_inicial,
-                                                  to_date=data_final,
+                    preco = \
+                    inv.get_index_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final,
                                                   interval='Daily')['Close']
-            if pais == 'Estados Unidos' and opcao == 'Indices':
-                retornos = \
-                    inv.get_index_historical_data(ticker, country='united states', from_date=data_inicial,
-                                                  to_date=data_final,
-                                                  interval='Monthly')['Close'].pct_change(1)
-                preco = \
-                    inv.get_index_historical_data(ticker, country='united states', from_date=data_inicial,
-                                                  to_date=data_final,
-                                                  interval='Daily')['Close']
-            preco = preco.fillna(method='bfill')
+                if pais == 'Estados Unidos' and opcao == 'Ações':
+                    retornos = \
+                        inv.get_stock_historical_data(ticker, country='united states', from_date=data_inicial,
+                                                      to_date=data_final,
+                                                      interval='Monthly')['Close'].pct_change(1)
+                    preco = \
+                        inv.get_stock_historical_data(ticker, country='united states', from_date=data_inicial,
+                                                      to_date=data_final,
+                                                      interval='Daily')['Close']
+                if pais == 'Estados Unidos' and opcao == 'Indices':
+                    retornos = \
+                        inv.get_index_historical_data(ticker, country='united states', from_date=data_inicial,
+                                                      to_date=data_final,
+                                                      interval='Monthly')['Close'].pct_change(1)
+                    preco = \
+                        inv.get_index_historical_data(ticker, country='united states', from_date=data_inicial,
+                                                      to_date=data_final,
+                                                      interval='Daily')['Close']
+                preco = preco.fillna(method='bfill')
+            except:
+                st.error('Algo errado com o ativo escolhido! Provavelmente seus dados históricos apresentaram algum problema. Escolha outro Ativo.')
 
 
     if len(retornos) != 0:
