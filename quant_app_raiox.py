@@ -24,7 +24,7 @@ def raiox():
       df_lista_bolsas['%'][count] = change
       count += 1
 
-  st.subheader('**Comportamento das Bolsas Mundiais**')
+  st.subheader('**Comportamento das Bolsas pelo Mundo**')
   st.markdown(str(date.today().strftime('%d/%m/%Y')))
   fig = px.choropleth(df_lista_bolsas, locations="Sigla", hover_data=['País', 'Indice', '%'])
   fig.update_layout(showlegend=False,
