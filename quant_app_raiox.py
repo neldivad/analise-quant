@@ -22,9 +22,9 @@ def raiox():
       change = (((price.iloc[-1] - price.iloc[-2]) / price.iloc[-2]) * 100).round(2)
       df_lista_bolsas['%'][count] = change
       count += 1
-  fig = px.choropleth(df_lista_bolsas, locations="Sigla", hover_name='País')
+  fig = px.choropleth(df_lista_bolsas, locations="Sigla", hover_data=['País', 'Indice', '%'])
   fig.update_layout(showlegend=False, title_text='Comportamento das Bolsas Mundiais',
-                    margin={"r": 0, "t": 0, "l": 0, "b": 0})
+                    margin={"r": 0, "t": 30, "l": 0, "b": 0})
   fig.update_traces(colorscale=[(0.00, "red"), (0.50, "red"), (0.50, "green"), (1.00, "green")], zmid=0,
                     z=df_lista_bolsas['%'])
   fig.show()
