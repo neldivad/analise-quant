@@ -34,3 +34,4 @@ def raiox():
   # fig.update_traces(hovertemplate="Teste")
   st.plotly_chart(fig)
   st.markdown('Dados com delay de 15 min.')
+  st.markdown('***Página em desenvolvimento e testes***')

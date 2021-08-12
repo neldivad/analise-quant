@@ -31,7 +31,7 @@ def main():
     #st.sidebar.title(":chart: Análise Quant")
     page = st.sidebar.radio("Selecione a opção", tuple(pages.keys()))
     st.sidebar.markdown("***")
-    with st.sidebar.beta_expander('Vesões'):
+    with st.sidebar.beta_expander('Versões'):
         # Mostrar versões das bibliotecas
         st.write(os.popen(f'python --version').read())
         st.write('Streamlit:', st.__version__)
