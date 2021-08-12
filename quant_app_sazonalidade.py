@@ -22,7 +22,7 @@ def sazonalidade():
     global retornos
     global preco
     global ticker
-    st.title('Análise de Sazonalidade')
+    st.header('Análise de Sazonalidade')
     st.write('Escolha o País')
     pais = st.radio('', ('Brasil', 'Estados Unidos'))
 

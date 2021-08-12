@@ -1,0 +1,18 @@
+País,Indice,index_yf,Sigla
+brazil,Bovespa,^BVSP,BRA
+united states,S&P 500,^GSPC,USA
+canada,S&P/TSX,^GSPTSE,CAN
+mexico,S&P/BMV IPC,^MXX,MEX
+china,Shanghai,000001.SS,CHN
+germany,DAX,^GDAXI,DEU
+united kingdom,FTSE 100,^FTSE,GBR
+france,CAC 40,^FCHI,FRA
+spain,IBEX 35,^IBEX,ESP
+italy,FTSE MIB,FTSEMIB.MI,ITA
+portugal,PSI 20,PSI20.LS,PRT
+india,BSE Sensex,^BSESN,IND
+japan,Nikkei 225,^N225,JPN
+russia,MOEX,IMOEX.ME,RUS
+australia,S&P/ASX 200,^AXAT,AUS
+hungary,Budapest SE,^BFX,HUN
+belgium,BEL 20,^BFX,BEL

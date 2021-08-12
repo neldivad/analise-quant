@@ -2,6 +2,7 @@ import streamlit as st
 import quant_app_carteira
 import quant_app_correlacao
 import quant_app_sazonalidade
+import quant_app_raiox
 import quant_app_contato
 # import quant_app_carteira2
 # import quant_app_teste
@@ -10,6 +11,7 @@ import yfinance as yf
 import pandas as pd
 from datetime import datetime
 import os
+import plotly
 
 st.set_option('deprecation.showPyplotGlobalUse', False)  # Desabilitar os Warnigs sobre o Pyplot
 st.set_page_config(page_title='Análise Quant', layout='wide', initial_sidebar_state='auto')  # Configurar Pagina
@@ -21,6 +23,7 @@ def main():
         "Análise de Carteira": page_carteira,
         "Correlações": page_correlacao,
         "Sazonalidade do Mercado": page_sazonalidade,
+        "Raio-X do Mercado": page_raiox,
         "Contato / Reporte de Erros": page_contato
     }
 
@@ -34,6 +37,7 @@ def main():
         st.write('Streamlit:', st.__version__)
         st.write('Pandas:', pd.__version__)
         st.write('yfinance:', yf.__version__)
+        st.write('plotly:', plotly.__version__)
     st.sidebar.markdown('''<small>Criado por Roberto Martins</small>''', unsafe_allow_html=True)
     st.sidebar.markdown('''<small>rraires.dev@gmail.com</small>''', unsafe_allow_html=True)
     # puxar_tickers_investing()
@@ -66,6 +70,9 @@ def page_correlacao():
 
 def page_sazonalidade():
     quant_app_sazonalidade.sazonalidade()
+
+def page_raiox():
+    quant_app_raiox.raiox()
 
 def page_contato():
     quant_app_contato.contato()
