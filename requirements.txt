@@ -1,6 +1,6 @@
 pandas==1.2.5
 numpy
-plotly
+plotly==5.1.0
 streamlit==0.84.0
 yfinance
 investpy
