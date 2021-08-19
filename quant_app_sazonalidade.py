@@ -145,7 +145,7 @@ def analise_sazonalidade():
             mostrar_anos = st.checkbox('Mostrar Anos')
 
 
-            decomposicao = sm.tsa.seasonal.seasonal_decompose(preco, model='additive', freq=251)
+            decomposicao = sm.tsa.seasonal.seasonal_decompose(preco, model='additive', period=251)
 
             Monthly_seasonal = pd.DataFrame(decomposicao.seasonal.groupby([decomposicao.seasonal.index.year.rename('year'),
                                                                            decomposicao.seasonal.index.month.rename(
