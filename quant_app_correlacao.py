@@ -26,13 +26,13 @@ def fix_col_names(df): # Função para tirar os .SA ou corrigir os simbolos
   return ['IBOV' if col =='^BVSP' else col.rstrip('.SA') for col in df.columns]
 
 def calcular_correlacoes():
-  with st.beta_expander("Correlação entre Ativos e Indices", expanded=True):
+  with st.expander("Correlação entre Ativos e Indices", expanded=True):
     if st.checkbox('Correlação', help='Calcular a correlação entre os Ativos e os Indices do Mercado', value=True):
       tickers = [item + '.SA' for item in st.session_state.tickers_sel] # Adicionar o '.SA' nos tickers
       tickers += ['^BVSP','^GSPC', 'USDBRL=X']
       #st.session_state.tickers_corr = st.session_state.tickers_sel + ['^BVSP', 'USDBRL=X'] # Adiciona os Indices para comparação
 
-      col1, col2 = st.beta_columns(2)
+      col1, col2 = st.columns(2)
       with col1:
         periodo = st.selectbox('Período:',['1 ano', '6 meses', '3 meses'])
         if periodo == '1 ano': periodo='1y'
@@ -65,7 +65,7 @@ def calcular_correlacoes():
 
 
       else: #Se tiver mais de 1 ativo, mostrar a correlação entre eles e entre os indices
-        col1, col2, col3 = st.beta_columns([1,0.1,1])
+        col1, col2, col3 = st.columns([1,0.1,1])
 
         with col1:
           st.write('**Correlação entre os Ativos**')
@@ -113,7 +113,7 @@ def calcular_correlacoes():
             st.table(corr_table_indices)
             #st.dataframe(corr_table_indices, height=400)
 
-  with st.beta_expander("Gráfico de Correlação no Tempo", expanded=True):
+  with st.expander("Gráfico de Correlação no Tempo", expanded=True):
     if st.checkbox('Correlação no Tempo', help='Mostrar a correlação no tempo em relação aos Indices'):
       retornos = yf.download(tickers, period='10y', progress=False)["Adj Close"].pct_change()
       retornos = retornos.rename(columns={'^BVSP': 'IBOV','^GSPC': 'SP500', 'USDBRL=X': 'Dolar'}) # Renomeia as Colunas

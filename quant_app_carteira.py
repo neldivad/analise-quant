@@ -22,13 +22,13 @@ def carteira():
 
   with st.form(key='Carteira_Inserir_Ativos'):
     st.markdown('Insira os Ativos que compõem sua Carteira')
-    col1, col2 = st.beta_columns(2)
+    col1, col2 = st.columns(2)
     with col1:
       st.session_state.papel = st.selectbox('Insira o Ativo', st.session_state.lista_tickers, help='Insira o ativo no caixa de seleção(Não é necessario apagar o ativo, apenas clique e digite as iniciais que a busca irá encontrar)')
     with col2:
       st.session_state.lote = st.text_input('Quantidade',value='100')
 
-    col1, col2, col3, col4 = st.beta_columns([.4,.7,.9,1]) # Cria as colunas para disposição dos botões. Os numeros são os tamanhos para o alinhamento
+    col1, col2, col3, col4 = st.columns([.4,.7,.9,1]) # Cria as colunas para disposição dos botões. Os numeros são os tamanhos para o alinhamento
     with col2:
       if st.form_submit_button(label='Inserir Ativo', help='Clique para inserir o Ativo e a Quantidade na Carteira'):
         botao_inserir()
@@ -67,7 +67,7 @@ def carteira():
 
   st.markdown("***")
 
-  with st.beta_expander("Ajuda"):
+  with st.expander("Ajuda"):
     st.write(
         """
         - **O que é BETA?** - O Beta é uma medida da volatilidade dos preços de uma ação ou de uma Carteira em relação ao mercado. 
@@ -143,7 +143,7 @@ def botao_apagar_tudo():
   #st.session_state.portifolio['Beta Ponderado'] = ''
 
 def calculo_hedge():
-  with st.beta_expander("Beta da Carteira e Informações sobre Hedge(Proteção)", expanded=True):
+  with st.expander("Beta da Carteira e Informações sobre Hedge(Proteção)", expanded=True):
     if st.checkbox('Calcular o Beta da Carteira e Hedge de proteção', help='O Beta da Carteira irá mostrar o quanto ela está relacionada com o mercado, e o Hedge te trará informações sobre proteção. Beta calculado sobre o periodo de 1 ano de histórico dos ativos.'):
       if st.session_state.portifolio.shape[0] != 0:
         #try:
@@ -157,7 +157,7 @@ def calculo_hedge():
           #qtde_bova11 = int(math.ceil(qtde_bova11)) #Arredondar para cima e tirar o "."
           #qtde_winfut = int(math.ceil(qtde_winfut)) #Arredondar para cima e tirar o "."
           # Mostrar Resultados
-          col1, col2, col3 = st.beta_columns([0.6,0.1,1])
+          col1, col2, col3 = st.columns([0.6,0.1,1])
           with col1:
             #st.write('**Valor da Carteira: **', 'R${:20,.2f}'.format(valor_carteira))
             st.write('**Beta da Carteira: **', '{:.2}'.format(beta_carteira))
@@ -180,7 +180,7 @@ def calculo_hedge():
         st.write("**Carteira Vazia!**")
 
 def calculo_correlacao():
-  with st.beta_expander("Correlação entre os Ativos e os Indices (IBOV e Dolar)", expanded=True):
+  with st.expander("Correlação entre os Ativos e os Indices (IBOV e Dolar)", expanded=True):
     if st.checkbox('Análise de Correlação', help='Mostra a Correlação dos ativos da sua Carteira em relação ao IBOV e Dolar, e também a correlação entre eles. Faixas: 0% a 40% - Sem correlação, ou correlação muito fraca. 40% a 70% - Correlação moderada. 70% a 100% - Correlação alta.'):
       #try:
         periodo = st.radio('Período de correlação:',['3 meses', '6 meses', '1 ano'], index=2)
@@ -203,7 +203,7 @@ def calculo_correlacao():
         correlacao = correlacao.drop('Dolar',1)
         correlacao = correlacao.drop('Dolar',0)
       
-        col1, col2, col3 = st.beta_columns([1,0.1,1])
+        col1, col2, col3 = st.columns([1,0.1,1])
         with col1:
           st.write('***Correlação dos Ativos com IBOV e Dolar***')
           corr_table_indices = pd.DataFrame(correlacao_full['IBOV'])
@@ -245,7 +245,7 @@ def calculo_correlacao():
         #st.error('Algo errado aconteceu. Verifique as informações ou pode ser que algum ativo esteja apresentando problemas com seus dados.')
 
 def calculo_setorial():
-  with st.beta_expander("Análise Setorial da sua Carteira", expanded=True):
+  with st.expander("Análise Setorial da sua Carteira", expanded=True):
     if st.checkbox('Análise Setorial', help='Verifique como está a distribuição da sua Carteira em relação aos setores do mercado. Quanto mais diversificado, melhor.'):
       if len(st.session_state.portifolio) <= 1:
         st.error('Insira ao menos 2 ativos!')
@@ -270,7 +270,7 @@ def calculo_setorial():
           #st.write('Ops! Isso é ruim.')
 
 def calculo_risco_retorno():
-  with st.beta_expander("Análise de Risco e Retorno", expanded=True):
+  with st.expander("Análise de Risco e Retorno", expanded=True):
     if st.checkbox('Risco e Retorno', help='Veja a relação entre Risco e Retorno de cada ativo da sua carteira.'):
       if len(st.session_state.portifolio) <= 1:
         st.error('Insira ao menos 2 ativos!')
@@ -304,7 +304,7 @@ def calculo_risco_retorno():
         st.plotly_chart(fig)
 
 def calculo_rentabilidade():
-  with st.beta_expander("Simulaçação da rentabilidade da Carteira", expanded=True):
+  with st.expander("Simulaçação da rentabilidade da Carteira", expanded=True):
     if st.checkbox('Simulação de Rentabilidade', help='Simule o histórico de rentabilidade e comparações da sua carteira com IBOV.'):
       if len(st.session_state.portifolio) <= 1:
         st.error('Insira ao menos 2 ativos!')

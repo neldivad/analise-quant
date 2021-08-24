@@ -18,6 +18,7 @@ retornos = ''
 preco = ''
 ticker=''
 lista = ''
+
 def sazonalidade():
     global retornos
     global preco
@@ -105,8 +106,8 @@ def sazonalidade():
         analise_sazonalidade()
 
 def analise_sazonalidade():
-    with st.beta_expander("Retornos Mensais", expanded=True):
-        if st.checkbox('Mapa Retornos Mensais', help='Analisar os retornos mensais do ativo escolhido', value=True):
+    with st.expander("Retornos Mensais", expanded=True):
+        if st.checkbox('Mapa Retornos Mensais', help='Analisar os retornos mensais do ativo escolhido', value=False):
             # Separar e agrupar os anos e meses
             retorno_mensal = retornos.groupby([retornos.index.year.rename('Year'), retornos.index.month.rename('Month')]).mean()
             # Criar e formatar a tabela pivot table
@@ -139,8 +140,8 @@ def analise_sazonalidade():
             ax.set_yticklabels(ax.get_yticklabels(), rotation=0, verticalalignment='center', fontsize='11')
             st.pyplot()
 
-    with st.beta_expander("Sazonalidade Anual", expanded=True):
-        if st.checkbox('Gráfico de Sazonalidade', help='Analisar o comportamento da sazonalidade ao longo dos meses do ano', value=True):
+    with st.expander("Sazonalidade Anual", expanded=True):
+        if st.checkbox('Gráfico de Sazonalidade', help='Analisar o comportamento da sazonalidade ao longo dos meses do ano', value=False):
             st.subheader('Sazonalidade Anual')
             mostrar_anos = st.checkbox('Mostrar Anos')
 

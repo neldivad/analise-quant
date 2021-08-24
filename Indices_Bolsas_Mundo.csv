@@ -1,19 +1,19 @@
 País,Indice,index_yf,Sigla
-brazil,Bovespa,^BVSP,BRA
-united states,S&P 500,^GSPC,USA
-canada,S&P/TSX,^GSPTSE,CAN
-mexico,S&P/BMV IPC,^MXX,MEX
-china,Shanghai,000001.SS,CHN
-germany,DAX,^GDAXI,DEU
-united kingdom,FTSE 100,^FTSE,GBR
-france,CAC 40,^FCHI,FRA
-spain,IBEX 35,^IBEX,ESP
-italy,FTSE MIB,FTSEMIB.MI,ITA
-portugal,PSI 20,PSI20.LS,PRT
-india,BSE Sensex,^BSESN,IND
-japan,Nikkei 225,^N225,JPN
-russia,MOEX,IMOEX.ME,RUS
-australia,S&P/ASX 200,^AXAT,AUS
-hungary,Budapest SE,^BFX,HUN
-belgium,BEL 20,^BFX,BEL
-argentina,MERVAL,^MERV,ARG
+Brasil,Bovespa,^BVSP,BRA
+US,S&P 500,^GSPC,USA
+Canada,S&P/TSX,^GSPTSE,CAN
+Mexico,S&P/BMV IPC,^MXX,MEX
+China,Shanghai,000001.SS,CHN
+Alemanha,DAX,^GDAXI,DEU
+Inglaterra,FTSE 100,^FTSE,GBR
+Franca,CAC 40,^FCHI,FRA
+Espanha,IBEX 35,^IBEX,ESP
+Italia,FTSE MIB,FTSEMIB.MI,ITA
+Portugal,PSI 20,PSI20.LS,PRT
+Índia,BSE Sensex,^BSESN,IND
+Japão,Nikkei 225,^N225,JPN
+Russia,MOEX,IMOEX.ME,RUS
+Australia,S&P/ASX 200,^AXAT,AUS
+Hungria,Budapest SE,^BFX,HUN
+Bélgica,BEL 20,^BFX,BEL
+Argentina,MERVAL,^MERV,ARG
