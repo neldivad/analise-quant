@@ -1,4 +1,5 @@
 import streamlit as st
+import quant_app_home
 import quant_app_carteira
 import quant_app_correlacao
 import quant_app_sazonalidade
@@ -20,6 +21,7 @@ def main():
 
     # Removing and add pages
     pages = {
+        "Home": page_home,
         "Análise de Carteira": page_carteira,
         "Correlações": page_correlacao,
         "Sazonalidade do Mercado": page_sazonalidade,
@@ -27,7 +29,7 @@ def main():
         "Contato / Reporte de Erros": page_contato
     }
 
-    st.sidebar.image('./analisequant_logo-removebg.png')
+    st.sidebar.image('./imagens/analisequant_logo-removebg.png')
     #st.sidebar.title(":chart: Análise Quant")
     page = st.sidebar.radio("Selecione a opção", tuple(pages.keys()))
     st.sidebar.markdown("***")
@@ -61,6 +63,9 @@ def main():
 
     # Display the selected page with the session state
     pages[page]()
+
+def page_home():
+    quant_app_home.home()
 
 def page_carteira():
     quant_app_carteira.carteira()
