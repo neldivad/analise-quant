@@ -9,3 +9,5 @@ seaborn
 cufflinks
 fundamentus
 statsmodels
+bokeh
+markdown
