@@ -111,7 +111,7 @@ def home():
     def _image(pagina):
         if pagina == 'analise_carteira':
             return bokeh.models.widgets.markups.Div(
-                text='<img src="http://www.openmindlab.com.br/imagens/video_analise_carteira.gif" style="width:400px"></img>',
+                text='<img src="imagens/video_analise_carteira.gif" style="width:400px"></img>',
             sizing_mode="scale_both",
             )
         if pagina == 'correlacao':
