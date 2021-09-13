@@ -113,12 +113,12 @@ def botao_inserir():
       #  subsetor = ticker.info['shortName']
       #if 'FII' in ticker.info['shortName']:
       #  setor = 'FII'
-      try:
-        setor = fundamentus.get_papel(st.session_state.papel)['Setor'][0]
-        subsetor = fundamentus.get_papel(st.session_state.papel)['Subsetor'][0]
-      except:
-        setor = 'ETFs/FIIs/BDRs'
-        subsetor = 'ETFs/FIIs/BDRs'
+      # try:
+      setor = fundamentus.get_papel(st.session_state.papel)['Setor'][0]
+      subsetor = fundamentus.get_papel(st.session_state.papel)['Subsetor'][0]
+      # except:
+      #   setor = 'ETFs/FIIs/BDRs'
+      #   subsetor = 'ETFs/FIIs/BDRs'
       st.session_state.portifolio = st.session_state.portifolio.append({'Ação': st.session_state.papel, 'Qtde': st.session_state.lote, 'Últ. Preço': ultimo_preco, 'Valor na Carteira': valor_total,
                                                   'Setor': setor, 'SubSetor': subsetor, 'Beta do Ativo': beta}, ignore_index=True)
       calc_porc_e_betapond()
