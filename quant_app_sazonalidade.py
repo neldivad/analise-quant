@@ -63,13 +63,13 @@ def sazonalidade():
                     #                               interval='Daily')['Close']
                     data_inicial = '1999-12-01'
                     data_final = date.today().strftime('%Y-%m-%d')
-                    #retornos = yf.download(ticker + '.SA', start= data_inicial, end=data_final, interval='1mo', progress=False)["Adj Close"].pct_change(1)
+                    retornos = yf.download(ticker + '.SA', start= data_inicial, end=data_final, interval='1mo', progress=False)["Adj Close"].pct_change()
                     preco = yf.download(ticker + '.SA', start= data_inicial, end=data_final, progress=False)["Adj Close"]
                     data_inicial = '01/12/1999'
                     data_final = date.today().strftime('%d/%m/%Y')
-                    retornos = \
-                    inv.get_stock_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final,
-                                                  interval='Monthly')['Close'].pct_change()
+                    # retornos = \
+                    # inv.get_stock_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final,
+                    #                               interval='Monthly')['Close'].pct_change()
 
 
                 if pais == 'Brasil' and opcao == 'Indices':
@@ -178,5 +178,3 @@ def analise_sazonalidade():
             # st.write(
             #     'Gráfico - Rankings dos meses (Classificação dos meses do menor para o maior rendimento naquele ano) - Clique 2x no item da Legenda para selecionar')
             # st.plotly_chart(fig)
-
-

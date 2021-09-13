@@ -13,6 +13,7 @@ import pandas as pd
 from datetime import datetime
 import os
 import plotly
+import fundamentus
 
 st.set_option('deprecation.showPyplotGlobalUse', False)  # Desabilitar os Warnigs sobre o Pyplot
 st.set_page_config(page_title='Análise Quant', layout='wide', initial_sidebar_state='auto')  # Configurar Pagina
@@ -40,6 +41,7 @@ def main():
         st.write('Pandas:', pd.__version__)
         st.write('yfinance:', yf.__version__)
         st.write('plotly:', plotly.__version__)
+        st.write('Fundamentus:', fundamentus.__version__)
     st.sidebar.markdown('''<small>Criado por Roberto Martins</small>''', unsafe_allow_html=True)
     st.sidebar.markdown('''<small>rraires.dev@gmail.com</small>''', unsafe_allow_html=True)
     # puxar_tickers_investing()
