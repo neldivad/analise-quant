@@ -117,6 +117,9 @@ def botao_inserir():
         setor = fundamentus.get_papel(st.session_state.papel)['Setor'][0]
         subsetor = fundamentus.get_papel(st.session_state.papel)['Subsetor'][0]
       except:
+        st.write(st.session_state.papel)
+        teste = fundamentus.get_papel(st.session_state.papel)['Setor'][0]
+
         setor = 'ETFs/FIIs/BDRs'
         subsetor = 'ETFs/FIIs/BDRs'
       st.session_state.portifolio = st.session_state.portifolio.append({'Ação': st.session_state.papel, 'Qtde': st.session_state.lote, 'Últ. Preço': ultimo_preco, 'Valor na Carteira': valor_total,
@@ -124,6 +127,7 @@ def botao_inserir():
       calc_porc_e_betapond()
 
   except:
+    teste = fundamentus.get_papel(st.session_state.papel)['Setor'][0]
     st.error('Ops! Verifique as informações.')
 
 def botao_apagar_ultimo():
