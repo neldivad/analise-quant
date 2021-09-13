@@ -90,7 +90,7 @@ def calc_porc_e_betapond():
   st.session_state.portifolio['Beta Ponderado'] = st.session_state.portifolio['%']  * st.session_state.portifolio['Beta do Ativo']
 
 def botao_inserir():
-  #try:
+  try:
     if any(st.session_state.portifolio['Ação']==st.session_state.papel): # Verificar se o Ativo já existe no DataFrame(Carteira)
       st.error('Ativo já existe na carteira. Por favor verifique!')
     else:
@@ -113,18 +113,18 @@ def botao_inserir():
       #  subsetor = ticker.info['shortName']
       #if 'FII' in ticker.info['shortName']:
       #  setor = 'FII'
-      # try:
-      setor = fundamentus.get_papel(st.session_state.papel)['Setor'][0]
-      subsetor = fundamentus.get_papel(st.session_state.papel)['Subsetor'][0]
-      # except:
-      #   setor = 'ETFs/FIIs/BDRs'
-      #   subsetor = 'ETFs/FIIs/BDRs'
+      try:
+        setor = fundamentus.get_papel(st.session_state.papel)['Setor'][0]
+        subsetor = fundamentus.get_papel(st.session_state.papel)['Subsetor'][0]
+      except:
+        setor = 'ETFs/FIIs/BDRs'
+        subsetor = 'ETFs/FIIs/BDRs'
       st.session_state.portifolio = st.session_state.portifolio.append({'Ação': st.session_state.papel, 'Qtde': st.session_state.lote, 'Últ. Preço': ultimo_preco, 'Valor na Carteira': valor_total,
                                                   'Setor': setor, 'SubSetor': subsetor, 'Beta do Ativo': beta}, ignore_index=True)
       calc_porc_e_betapond()
 
-  # except:
-  #   st.error('Ops! Verifique as informações.')
+  except:
+    st.error('Ops! Verifique as informações.')
 
 def botao_apagar_ultimo():
   st.session_state.portifolio.drop(st.session_state.portifolio.tail(1).index,inplace=True) # Apaga o ultimo registro do DataFrame
