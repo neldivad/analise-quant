@@ -244,9 +244,9 @@ def grafico_sazonalidade(ticker, preco):
 # sazonalidade["2020-01-01":"2020-12-31"].plot()
 # decomposicao.plot()
 
-preco = inv.search_quotes('TIOc1')
-preco = inv.commodities.commodities_as_list()
-preco = inv.indices.search_indices(by='symbol', value='TIOc1')
+#preco = inv.search_quotes('TIOc1')
+#preco = inv.commodities.commodities_as_list()
+#preco = inv.indices.search_indices(by='symbol', value='TIOc1')
 
 sazonalidade()
 
