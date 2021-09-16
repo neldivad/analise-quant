@@ -23,8 +23,6 @@ st.set_page_config(  # Alternate names: setup_page, page, layout
     page_icon=None,  # String, anything supported by st.image, or None.
 )
 
-
-
 def sazonalidade():
     st.header('Análise de Sazonalidade')
     col1, col2, col3 = st.columns(3)
