@@ -132,7 +132,7 @@ def mapa_retornos(ticker, retornos):
             st.pyplot(fig)
 
 def grafico_sazonalidade(ticker, preco):
-    with st.expander("Gráfico Sazonalidade", expanded=False):
+    with st.expander("Gráfico Sazonalidade", expanded=True):
         decomposicao = sm.tsa.seasonal.seasonal_decompose(preco, model='additive',
                                                           period=252)  # Decomposição da Série de preços
         sazonalidade = pd.DataFrame(decomposicao.seasonal)  # Cria um dataframe com a parte de sazonalidade
