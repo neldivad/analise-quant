@@ -58,14 +58,14 @@ def sazonalidade(ticker):
     return df_pivot, lista_dias
 
 def gerar_grafico():
-    start_dt, end_dt = st.select_slider("Selecione o Período", options=lista_dias, value=['02/Jan', '31/Dec'])
+    start_dt, end_dt = st.select_slider("Selecione o Período", options=lista_dias, value=['02/Jan', '30/Dec'])
     start_dt = datetime.strptime(start_dt, '%d/%b')
     end_dt = datetime.strptime(end_dt, '%d/%b')
 
     hoje = '1900-' + str(datetime.today().strftime(
         '%m-%d'))  # Pega data Atual e coloca no tipo do dataframe (1900 ano que não será utilizado)
     # Gerar o Grafico
-    fig = px.line(df_pivot, title='Sazonalidade Anual - ' + ticker, width=1500, height=600)
+    fig = px.line(df_pivot, title='Sazonalidade Anual - ' + ticker, width=1200, height=600)
     if st.checkbox('Mostrar Data Atual'):
         fig.add_vline(hoje)
     fig.update_layout(xaxis_tickformatstops=[dict(dtickrange=[None, 'M1'], value='%b'),
@@ -111,7 +111,7 @@ def backtest(start_dt, end_dt):
 
 # ticker = 'PETR4'
 
-ticker=st.selectbox("Ticker",['VALE3.SA','PETR4.SA', 'DIS', 'ALV', 'EBAY', 'BTCUSD' ])
+ticker=st.selectbox("Ticker",['VALE3.SA','PETR4.SA', 'DIS', 'ALV', 'EBAY', 'BTCUSD', 'LREN3.SA', 'LAME4.SA', 'MGLU3.SA', '^BVSP' ])
 
 df_pivot, lista_dias = sazonalidade(ticker)
 
@@ -125,12 +125,12 @@ gain_pct = (sum(ret['%'] > 0)) / len(ret)
 loss_pct = (sum(ret['%'] < 0)) / len(ret)
 
 col1, col2, col3, col4, col5 = st.columns(5)
-col1.metric('Inicio', inicio)
-col2.metric('Fim', fim)
-col3.metric('Qtde de Trades', len(ret))
-col4.metric('Gain', value=gain)
+# col1.metric('Inicio', inicio)
+# col2.metric('Fim', fim)
+col1.metric('Qtde de Trades', len(ret))
+col2.metric('Gain', value=gain)
+col3.metric('Loss', value=loss)
 col4.metric('Gain', value="{0:.0%}".format(gain_pct))
-col5.metric('Loss', value=loss)
 col5.metric('Loss', value="{0:.0%}".format(loss_pct))
 
 # ret['Ano'] = ret['Ano'].astype('string')

@@ -150,8 +150,8 @@ def calculo_hedge():
           # Cálculos
           beta_carteira = st.session_state.portifolio['Beta Ponderado'].sum().round(2)
           valor_carteira = st.session_state.portifolio['Valor na Carteira'].sum() # Obtem o valor total da Carteira
-          preco_bova11 = yf.download('BOVA11.sa', period='1d', progress=False)['Adj Close'][0] # Pega último preço do BOVA11
-          preco_winfut = yf.download('^BVSP', period='1d', progress=False)['Adj Close'][0] # Pega último preço do WINFUT(IBOV)
+          preco_bova11 = yf.download('BOVA11.sa', period='5d', progress=False)['Adj Close'][-1] # Pega último preço do BOVA11
+          preco_winfut = yf.download('^BVSP', period='5d', progress=False)['Adj Close'][-1] # Pega último preço do WINFUT(IBOV)
           #qtde_bova11 = (valor_carteira / preco_bova11) * beta_carteira # Qtde de lotes de BOVA11 para fazer Hedge
           #qtde_winfut = valor_carteira / (preco_winfut * 0.20) * beta_carteira # Qtde de contratos WINFUT para Hedge
           #qtde_bova11 = int(math.ceil(qtde_bova11)) #Arredondar para cima e tirar o "."
