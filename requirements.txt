@@ -13,3 +13,4 @@ bokeh
 markdown
 ffn
 altair
+streamlit_vega_lite
