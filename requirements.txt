@@ -11,3 +11,5 @@ fundamentus
 statsmodels
 bokeh
 markdown
+ffn
+altair
