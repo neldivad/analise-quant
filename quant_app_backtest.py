@@ -1,15 +1,23 @@
 import streamlit as st
-import pandas as pd
 import numpy as np
-from pandas_datareader import data
+import pandas as pd
+import yfinance as yf
+import investpy as inv
+import ffn
+import matplotlib.pyplot as plt
+# import plotly.express as px
 import altair as alt
 from streamlit_vega_lite import vega_lite_component, altair_component
-import yfinance as yf
-import ffn
+import seaborn as sns
+# import cufflinks as cf
+# import datetime
+from datetime import datetime
+# import math
 import statsmodels.api
 import statsmodels as sm
-from datetime import datetime, timedelta
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+from datetime import datetime, timedelta
 
 st.set_page_config(  # Alternate names: setup_page, page, layout
     layout="wide",  # Can be "centered" or "wide". In the future also "dashboard", etc.
@@ -18,21 +26,79 @@ st.set_page_config(  # Alternate names: setup_page, page, layout
     page_icon=None,  # String, anything supported by st.image, or None.
 )
 
-# start = '2020-1-1'
-# end = '2020-12-31'
-# source = 'yahoo'
+def backtest_sazonalidade():
+    st.header('Backtesting de Sazonalidade')
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.write('Escolha o País')
+        pais = st.radio('', ('Brasil', 'Estados Unidos'))
+    with col2:
+        st.write('Escolha entre Ações ou Indices')
+        opcao = st.radio('', ('Ações', 'Indices'))
 
-# stocks = data.DataReader("AAPL", start=start ,end=end, data_source=source).reset_index()[["Date", "Close"]]
+    st.session_state.lista_tickers = ['WEGE3', 'VALE3', 'PETR4', 'BBDC4', 'ITUB4']
 
-# stocks.rename(columns={'Date': 'x'}, inplace = True)
+    if pais == 'Brasil' and opcao == 'Ações':
+        # lista = st.session_state.lista_tickers
+        lista = inv.get_stocks_list(country='brazil')
+    if pais == 'Brasil' and opcao == 'Indices':
+        lista = inv.get_indices_list(country='brazil')
+    if pais == 'Estados Unidos' and opcao == 'Ações':
+        lista = inv.get_stocks_list(country='united states')
+    if pais == 'Estados Unidos' and opcao == 'Indices':
+        lista = inv.get_indices_list(country='united states')
+    
+    ticker = st.selectbox('Selecione a Ação ou Indice desejado', lista)
+    if st.button('Mostrar Sazonalidade'):
+        try:
+            data_inicial = '01/12/1999'
+            data_final = datetime.today().strftime('%d/%m/%Y')
 
-# stocks['x'] = stocks['x'].dt.strftime('%Y-%m-%d')
+            if pais == 'Brasil' and opcao == 'Ações':
+                data_inicial = '1999-12-01'
+                data_final = datetime.today().strftime('%Y-%m-%d')
+                st.session_state.preco = yf.download(ticker + '.SA', start= data_inicial, end=data_final, progress=False)["Adj Close"]
+                st.session_state.ticker_ffn = str(ticker + '.SA')
 
-@st.cache(allow_output_mutation=True)
-def sazonalidade(ticker):
-    precos = yf.download(ticker, start='2000-01-01', end='2020-12-31', progress=False)['Adj Close']
-    precos = precos.fillna(method='bfill')
-    decomposicao = sm.tsa.seasonal.seasonal_decompose(precos, model='additive', period=252) # Decomposição da Série de preços
+            if pais == 'Brasil' and opcao == 'Indices':
+                st.session_state.retornos = \
+                st.session_state.preco = \
+                inv.get_index_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final,
+                                                interval='Daily')['Close']
+            if pais == 'Estados Unidos' and opcao == 'Ações':
+                st.session_state.preco = \
+                    inv.get_stock_historical_data(ticker, country='united states', from_date=data_inicial,
+                                                    to_date=data_final,
+                                                    interval='Daily')['Close']
+            if pais == 'Estados Unidos' and opcao == 'Indices':
+                st.session_state.preco = \
+                    inv.get_index_historical_data(ticker, country='united states', from_date=data_inicial,
+                                                    to_date=data_final,
+                                                    interval='Daily')['Close']
+            st.session_state.preco = st.session_state.preco.fillna(method='bfill')
+
+        except:
+            st.error('Algo errado com o ativo escolhido! Provavelmente seus dados históricos apresentaram algum problema. Escolha outro Ativo.')
+    if len(st.session_state.preco) != 0:
+        sazonalidade = calc_sazonalidade(st.session_state.preco)
+        with st.expander("", expanded=True):
+            evento = altair_component(grafico_selecao(sazonalidade, ticker))
+            st.markdown('Selecione com o mouse o periodo para verificar a performance. Arraste o periodo para mudar. Clique fora da seleção para selecionar um novo período.')
+
+        selecao = evento.get('x')
+
+        if selecao:
+            inicio = datetime(1970, 1, 1) + timedelta(seconds=(int(selecao[0])/1000)) #Calculo para converter o Timestamp negativo, pois o ano é 1900
+            fim = datetime(1970, 1, 1) + timedelta(seconds=(int(selecao[1])/1000))
+            st.write(inicio.strftime('%d/%b'), '-', fim.strftime('%d/%b'))
+            with st.expander("Performance", expanded=True):
+                backtest(selecao, st.session_state.ticker_ffn)
+
+
+
+@st.cache(suppress_st_warning=True)
+def calc_sazonalidade(preco):
+    decomposicao = sm.tsa.seasonal.seasonal_decompose(preco, model='additive', period=252) # Decomposição da Série de preços
     sazonalidade = pd.DataFrame(decomposicao.seasonal) # Cria um dataframe com a parte de sazonalidade
     #Montar a tabela pivot, separando os anos.
     df_pivot= pd.pivot_table(sazonalidade, values='seasonal',
@@ -63,22 +129,23 @@ def sazonalidade(ticker):
 
     # df_pivot.set_index('DateTime', inplace=True) # Seta a coluna Data como index
     df_pivot['x'] = df_pivot['x'].dt.strftime('%Y-%m-%d')
-    return df_pivot, lista_dias
+    return df_pivot
 
 @st.cache
-def linechart():
+def grafico_selecao(sazonalidade, ticker):
 	brushed = alt.selection_interval(encodings=['x'], name="brushed")
 	return (
-			alt.Chart(stocks).mark_line().
+			alt.Chart(sazonalidade).mark_line().
 			encode(
 				alt.X('x', type='temporal', title=''),
 				alt.Y('Sazonalidade')
 			).
-			properties(height=300, width=800).
+			properties(title='Sazonalidade Aual - ' + ticker,height=300, width=800).
 			add_selection(brushed)
 	)
 
-def backtest(selecao):
+def backtest(selecao, ticker):
+    st.write(ticker)
     data = ffn.get(ticker, start='2000-01-01', end='2020-12-31')
     data = data.fillna(method='bfill')
     perf = data.calc_stats()
@@ -133,15 +200,4 @@ def backtest(selecao):
     st.dataframe(ret)
     # return ret, inicio, fim
 
-ticker = '^BVSP'
-stocks, lista_dias = sazonalidade(ticker)
-
-evento = altair_component(linechart())
-
-selecao = evento.get('x')
-
-if selecao:
-    inicio = datetime(1970, 1, 1) + timedelta(seconds=(int(selecao[0])/1000)) #Calculo para converter o Timestamp negativo, pois o ano é 1900
-    fim = datetime(1970, 1, 1) + timedelta(seconds=(int(selecao[1])/1000))
-    st.write(inicio.strftime('%d/%b'), '-', fim.strftime('%d/%b'))
-    backtest(selecao)
+backtest_sazonalidade()
