@@ -95,8 +95,6 @@ def sazonalidade():
         sazonalidade = calc_sazonalidade(preco)
         grafico_sazonalidade(sazonalidade, ticker, preco)
 
-
-
 @st.cache(suppress_st_warning=True)
 def mapa_retornos(ticker, retornos):
     with st.expander("Retornos Mensais", expanded=False):
@@ -171,7 +169,8 @@ def calc_sazonalidade(preco):
 
 def grafico_sazonalidade(df_pivot, ticker, preco):
     with st.expander("Gráfico Sazonalidade", expanded=True):
-        preco_ano = preco.loc["2021-01-01":"2021-09-14"]
+        hoje = '1900-' + str(datetime.today().strftime('%m-%d'))  # Pega data Atual e coloca no tipo do dataframe (1900 ano que não será utilizado)
+        preco_ano = preco.loc["2021-01-01":str(datetime.today().strftime('%Y-%m-%d'))]#Alterar qdo mudar o ano
         preco_ano.index = preco_ano.index + pd.DateOffset(year=1900)
 
         fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -197,14 +196,22 @@ def grafico_sazonalidade(df_pivot, ticker, preco):
                                                '1900-06-01', '1900-07-02', '1900-08-01', '1900-09-01', '1900-10-02',
                                                '1900-11-01', '1900-12-01']),
                           showlegend=True, hovermode="x unified",
-                          width=710,
-                          height=500
+                          width=800,
+                          height=400,
+                            margin=dict(
+                            l=0,
+                            r=0,
+                            b=0,
+                            t=50,
+                            pad=4
+                        )
                           )
         fig.update_traces(hovertemplate="<b>%{x|%d/%b}</b>")
         fig.update_yaxes(title_text="<b>Sazonalidade</b>", secondary_y=False)
         fig.update_yaxes(title_text="<b>Preço</b>", secondary_y=True)
         fig.update_xaxes(fixedrange=True, title=None)
         fig.update_yaxes(fixedrange=True)
-        fig.update_yaxes(showgrid=False)        
-
+        fig.update_yaxes(showgrid=False)
+        #fig.add_vline(hoje) #Mostrar linha no dia de hoje       
         st.plotly_chart(fig)
+        st.markdown('Clique na legenda (Preço ano atual) para plotar o grafico do preço do ativo no ano corrente. ')
