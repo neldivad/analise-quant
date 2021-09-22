@@ -17,8 +17,8 @@ st.set_page_config(  # Alternate names: setup_page, page, layout
 
 df = fundamentus.get_resultado()
 df.reset_index(inplace=True)
-df.columns=['Papel', 'Cotação', 'P/L','P/VP', 'PSR' ,'Div. Yield', 'P/Ativos', 'P/Cap. Giro', 'P/EBIT', 'P/Ativ Circ Liq', 
-            'EV/EBIT','EV/EBITDA', 'Marg. EBIT', 'Marg. Liq', 'ROIC', 'ROE', 'Liq. Corr.', 'Vol $ méd (2m)', 'Patrim Liq.', 'Div Br/ Patrim', 'Cres. Rec (5a)']
+df.columns=['Papel', 'Cotação', 'P/L','P/VP', 'PSR' ,'Div Yield', 'P/Ativos', 'P/Cap Giro', 'P/EBIT', 'P/Ativ Circ Liq', 
+            'EV/EBIT','EV/EBITDA', 'Marg EBIT', 'Marg Liq', 'ROIC', 'ROE', 'Liq Corr', 'Vol $ méd (2m)', 'Patrim Liq', 'Div Br/ Patrim', 'Cres Rec (5a)']
 
 #Infer basic colDefs from dataframe types
 gb = GridOptionsBuilder.from_dataframe(df)
