@@ -240,3 +240,96 @@ alt.hconcat(
     field="m",
     bin=alt.Bin(maxbins=20)
 )
+
+########################### Plotly Buttons ############################
+
+import yfinance as yf
+
+import pandas as pd
+import plotly.graph_objects as go
+
+# Request stocks data for Microsoft (MSFT)
+MSFT = yf.Ticker("MSFT")
+df_MSFT = MSFT.history(period="max")
+
+# Request stocks data for Apple (AAPL)
+AAPL = yf.Ticker("AAPL")
+df_AAPL = AAPL.history(period="max")
+
+# Request stocks data for Amazon (AMZN)
+AMZN = yf.Ticker("AMZN")
+df_AMZN = AMZN.history(period="max")
+
+# Request stocks data for Google (GOOGL)
+GOOGL = yf.Ticker("GOOGL")
+df_GOOGL = GOOGL.history(period="max")
+
+df_stocks = pd.DataFrame({
+    'MSFT': df_MSFT['High'],
+    'AAPL': df_AAPL['High'],
+    'AMZN': df_AMZN['High'],
+    'GOOGL': df_GOOGL['High'],
+})
+
+# How to change plot data using dropdowns
+#
+# This example shows how to manually add traces
+# to the plot and configure the dropdown to only
+# show the specific traces you allow.
+
+fig = go.Figure()
+
+for column in df_stocks.columns.to_list():
+    fig.add_trace(
+        go.Scatter(
+            x = df_stocks.index,
+            y = df_stocks[column],
+            name = column
+        )
+    )
+    
+fig.update_layout(
+    updatemenus=[go.layout.Updatemenu(
+        active=0,
+        buttons=list(
+            [dict(label = 'All',
+                  method = 'update',
+                  args = [{'visible': [True, True, True, True]},
+                          {'title': 'All',
+                           'showlegend':True}]),
+             dict(label = 'MSFT',
+                  method = 'update',
+                  args = [{'visible': [True, False, False, False]}, # the index of True aligns with the indices of plot traces
+                          {'title': 'MSFT',
+                           'showlegend':True}]),
+             dict(label = 'AAPL',
+                  method = 'update',
+                  args = [{'visible': [False, True, False, False]},
+                          {'title': 'AAPL',
+                           'showlegend':True}]),
+             dict(label = 'AMZN',
+                  method = 'update',
+                  args = [{'visible': [False, False, True, False]},
+                          {'title': 'AMZN',
+                           'showlegend':True}]),
+             dict(label = 'GOOGL',
+                  method = 'update',
+                  args = [{'visible': [False, False, False, True]},
+                          {'title': 'GOOGL',
+                           'showlegend':True}]),
+            ])
+        )
+    ])
+
+fig.show()
+
+
+
+
+import fundamentus
+from st_aggrid import AgGrid
+import pandas as pd
+
+df = fundamentus.get_resultado()
+df.reset_index(inplace=True)
+AgGrid(df)
