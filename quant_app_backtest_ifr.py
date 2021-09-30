@@ -122,6 +122,9 @@ def capital_plot(saldos, lucros):
     st.markdown('**Lucros / Trade**')
     st.area_chart(cap_evolution['Profit'])
 
+
+
+
 st.header('Backtesting IFR2')
 lista_tickers = puxar_tickers_grafbolsa()
 ticker = st.selectbox('Selecione o Papel', lista_tickers)
@@ -133,3 +136,5 @@ data_fim = "2020-12-30"
 capital, lucros, saldos = backtest_ifr(ticker, nivel_ifr, capital, data_inicio, data_fim)
 strategy_test(capital, lucros)
 capital_plot(saldos, lucros)
+
+

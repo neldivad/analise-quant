@@ -79,6 +79,11 @@ def backtest_sazonalidade():
 
         except:
             st.error('Algo errado com o ativo escolhido! Provavelmente seus dados históricos apresentaram algum problema. Escolha outro Ativo.')
+        
+    with st.expander('Topos e Fundos - Sazonalidade - Carteira IBOV', expanded = False):
+        lista_sazo = pd.read_csv('sazonalidade_ibov_topos_fundos.csv')
+        st.dataframe(lista_sazo)
+    
     if len(st.session_state.preco) != 0:
         sazonalidade = calc_sazonalidade(st.session_state.preco)
         with st.expander("", expanded=True):
@@ -140,7 +145,7 @@ def grafico_selecao(sazonalidade, ticker):
 				alt.X('x', type='temporal', title=''),
 				alt.Y('Sazonalidade')
 			).
-			properties(title='Sazonalidade Aual - ' + ticker,height=300, width=800).
+			properties(title='Sazonalidade Anual - ' + ticker,height=300, width=800).
 			add_selection(brushed)
 	)
 
