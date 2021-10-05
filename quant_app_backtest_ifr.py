@@ -1,4 +1,3 @@
-from re import S
 from pandas.core.frame import DataFrame
 import streamlit as st
 import pandas as pd
@@ -13,6 +12,11 @@ st.set_page_config(  # Alternate names: setup_page, page, layout
     page_title=None,  # String or None. Strings get appended with "• Streamlit".
     page_icon=None,  # String, anything supported by st.image, or None.
 )
+############################
+############################
+# RETIRAR ESSE BLOCO QDO MIGRAR PARA A PAGINA
+############################
+############################
 
 @st.cache
 def puxar_tickers_grafbolsa():
@@ -21,6 +25,12 @@ def puxar_tickers_grafbolsa():
     tabela = tabela.sort_values(9)  # Classifica em ordem alfabetica pela coluna do código
     lista_tickers = tabela[9].to_list()  # Transforma a Serie em lista, para ser usada nos widgets
     return lista_tickers
+
+############################
+############################
+# RETIRAR ESSE BLOCO QDO MIGRAR PARA A PAGINA
+############################
+############################
 
 #Função para calculo do IFR2
 def rsi(data, column, window=2):   
