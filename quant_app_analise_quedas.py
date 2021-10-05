@@ -73,13 +73,12 @@ def Quedas():
             {"% Queda": "{:.2%}", "Abert. Dia Seguinte": "{:.2%}", "Fech. Dia Seguinte": "{:.2%}",
              "Var. Dia Seguinte": "{:.2%}"})  # Formatar o dataframe com as cores do mapa acima e com a formatação de %
 
-        col1, col2, col3 = st.columns(3)
-        col1.metric('Abert. no Dia Seguinte Potitivo', value = f'{qtde_abert:.0%}')
-        col2.metric('Fecha. no Dia Seguinte Positivo', value = f'{qtde_fech:.0%}')
-        col3.metric('Variação no Dia Seguinte Positiva', value = f'{qtde_var:.0%}')
-        
+        col1, col2, col3, col4 = st.columns([0.5,1,1,1])
+        col1.metric('Qtde. de Dias', value=qtde_total)
+        col2.metric('Abert. no Dia Seguinte Potitivo', value = f'{qtde_abert:.0%}')
+        col3.metric('Fecha. no Dia Seguinte Positivo', value = f'{qtde_fech:.0%}')
+        col4.metric('Variação no Dia Seguinte Positiva', value = f'{qtde_var:.0%}')
 
-        
         st.write('Dias onde', ticker, ' teve uma queda de mais de', -perc_queda, '%')
         st.table(dados_df)
 
