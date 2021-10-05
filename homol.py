@@ -25,18 +25,20 @@ def Quedas():
     if pressed_calc:
         papel = yf.download(ticker + '.SA')  # Baixar dados históricos do ticker
         papel = papel.reset_index()  # Resetar o index, que antes estava como Date, e agora Index
-        papel['Retorno'] = papel[
-            'Adj Close'].pct_change()  # Calcular a variação % entre um dia e outro do fechamento e criar a coluna Retorno
-        papel = papel[
-                :-1]  # Retirar a ultima linha (dia atual) caso ele tenha queda maior que o escolhido, para nao dar erro no dia seguinte q não existe
-
+        papel['Retorno'] = papel['Adj Close'].pct_change()  # Calcular a variação % entre um dia e outro do fechamento e criar a coluna Retorno
+      
         perc = -(perc_queda / 100)  # Dividir o valor de perc por 100 para a busca
+        indice = papel[papel["Retorno"] < perc].index  # Procurar pelas linhas onde o Retorno for menor que perc, e gerar a lista com os indices
 
-        indice = papel[papel[
-                           "Retorno"] < perc].index  # Procurar pelas linhas onde o Retorno for menor que perc, e gerar a lista com os indices
-
-        dia_queda = papel.iloc[indice]  # Criar a tabela com os dias de queda escolhido
-        dia_seguinte = papel.iloc[indice + 1]  # Criar a tabela com os dias seguintes
+        # Bloco para verificar se o dia atual é um dos dias de queda escolhido. Se sim, apaga ele.
+        if indice[-1] == (len(papel)-1):
+            papel = papel[:-1] # Tirar o ultimo dia
+            indice = papel[papel["Retorno"] < perc].index
+            dia_queda = papel.iloc[indice]
+            dia_seguinte = papel.iloc[indice+1]
+        else:
+            dia_queda = papel.iloc[indice]
+            dia_seguinte = papel.iloc[indice+1]
 
         dados_df = pd.DataFrame()  # Criar o dataframe dos dados a serem apresentados
         dados_df['Data Queda'] = dia_queda['Date'].values  # Coluna das Datas de Queda
