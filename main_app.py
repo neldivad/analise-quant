@@ -98,7 +98,7 @@ def puxar_tickers_investing():
     st.session_state.lista_tickers.append('NTCO3')
     st.session_state.lista_tickers.append('BOVA11')
 
-@st.cache
+# @st.cache
 def puxar_tickers_grafbolsa():
     url = 'http://www.grafbolsa.com/index.html'
     tabela = pd.read_html(url)[1][3:]  # Pega a 2º tabela, da 3º linha para baixo
