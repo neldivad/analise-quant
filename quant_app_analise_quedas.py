@@ -3,7 +3,8 @@ import pandas as pd
 import yfinance as yf
 
 def quedas():
-    st.title('Análise de quedas e comportamento no dia seguinte')
+    st.header('Análise de quedas e comportamento no dia seguinte')
+    st.write('')
     col1, col2 = st.columns(2)
     with col1:
         ticker = st.selectbox('Escolha a Ação (Clique no campo e digite as iniciais do Ticker)', st.session_state.lista_tickers)
@@ -65,9 +66,9 @@ def quedas():
              "Var. Dia Seguinte": "{:.2%}"})  # Formatar o dataframe com as cores do mapa acima e com a formatação de %
 
         col1, col2, col3= st.columns(3)
-        col1.metric('Abert. no Dia Seguinte Potitivo', value = f'{qtde_abert:.0%}')
-        col2.metric('Fecha. no Dia Seguinte Positivo', value = f'{qtde_fech:.0%}')
+        col1.metric('Abert. no Dia Seguinte Positivo', value = f'{qtde_abert:.0%}')
+        col2.metric('Fech. no Dia Seguinte Positivo', value = f'{qtde_fech:.0%}')
         col3.metric('Variação no Dia Seguinte Positiva', value = f'{qtde_var:.0%}')
 
-        st.write('Dias onde', ticker, ' teve uma queda de mais de', -perc_queda, '%')
+        st.write('Dias onde', ticker, ' teve uma queda de mais de', perc_queda, '%')
         st.table(dados_df)

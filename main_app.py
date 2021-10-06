@@ -47,7 +47,7 @@ def main():
     st.sidebar.markdown('''<small>Criado por Roberto Martins</small>''', unsafe_allow_html=True)
     st.sidebar.markdown('''<small>rraires.dev@gmail.com</small>''', unsafe_allow_html=True)
     # puxar_tickers_investing()
-    puxar_tickers_grafbolsa()
+    st.session_state.lista_tickers = puxar_tickers_grafbolsa()
 
     ###### Iniciar o DataFrame do Portifolio, somente no primeiro carregamento da Página
 
@@ -98,13 +98,14 @@ def puxar_tickers_investing():
     st.session_state.lista_tickers.append('NTCO3')
     st.session_state.lista_tickers.append('BOVA11')
 
-# @st.cache
+@st.cache
 def puxar_tickers_grafbolsa():
     url = 'http://www.grafbolsa.com/index.html'
     tabela = pd.read_html(url)[1][3:]  # Pega a 2º tabela, da 3º linha para baixo
     tabela = tabela.sort_values(9)  # Classifica em ordem alfabetica pela coluna do código
-    st.session_state.lista_tickers = tabela[9].to_list()  # Transforma a Serie em lista, para ser usada nos widgets
-
+    #st.session_state.lista_tickers = tabela[9].to_list()  # Transforma a Serie em lista, para ser usada nos widgets
+    lista_tickers = tabela[9].to_list()
+    return lista_tickers
 ##############################################
 
 if __name__ == "__main__":
