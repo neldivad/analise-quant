@@ -3,6 +3,7 @@ import quant_app_home
 import quant_app_carteira
 import quant_app_correlacao
 import quant_app_sazonalidade
+import quant_app_analise_quedas
 import quant_app_raiox
 import quant_app_contato
 # import quant_app_carteira2
@@ -26,6 +27,7 @@ def main():
         "Análise de Carteira": page_carteira,
         "Correlações": page_correlacao,
         "Sazonalidade do Mercado": page_sazonalidade,
+        "Analise de Quedas": page_quedas,
         "Raio-X do Mercado": page_raiox,
         "Contato / Reporte de Erros": page_contato
     }
@@ -78,6 +80,9 @@ def page_correlacao():
 def page_sazonalidade():
     quant_app_sazonalidade.sazonalidade()
 
+def page_quedas():
+    quant_app_analise_quedas.quedas()
+
 def page_raiox():
     quant_app_raiox.raiox()
 
@@ -93,6 +98,7 @@ def puxar_tickers_investing():
     st.session_state.lista_tickers.append('NTCO3')
     st.session_state.lista_tickers.append('BOVA11')
 
+@st.cache
 def puxar_tickers_grafbolsa():
     url = 'http://www.grafbolsa.com/index.html'
     tabela = pd.read_html(url)[1][3:]  # Pega a 2º tabela, da 3º linha para baixo

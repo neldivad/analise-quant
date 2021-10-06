@@ -2,20 +2,11 @@ import streamlit as st
 import pandas as pd
 import yfinance as yf
 
-@st.cache
-def puxar_tickers_grafbolsa():
-    url = 'http://www.grafbolsa.com/index.html'
-    tabela = pd.read_html(url)[1][3:]  # Pega a 2º tabela, da 3º linha para baixo
-    tabela = tabela.sort_values(9)  # Classifica em ordem alfabetica pela coluna do código
-    lista_tickers = tabela[9].to_list()  # Transforma a Serie em lista, para ser usada nos widgets
-    return lista_tickers
-
-def Quedas():
+def quedas():
     st.title('Análise de quedas e comportamento no dia seguinte')
-    lista_tickers = puxar_tickers_grafbolsa()
     col1, col2 = st.columns(2)
     with col1:
-        ticker = st.selectbox('Escolha a Ação (Clique no campo e digite as iniciais do Ticker)', lista_tickers)
+        ticker = st.selectbox('Escolha a Ação (Clique no campo e digite as iniciais do Ticker)', st.session_state.lista_tickers)
     with col2:
         perc_queda = st.number_input(
             'Entre com a % de queda (Ex.: 10 para listar os dias em que a Ação caiu mais do que 10%', min_value=2, value=10)
@@ -73,13 +64,10 @@ def Quedas():
             {"% Queda": "{:.2%}", "Abert. Dia Seguinte": "{:.2%}", "Fech. Dia Seguinte": "{:.2%}",
              "Var. Dia Seguinte": "{:.2%}"})  # Formatar o dataframe com as cores do mapa acima e com a formatação de %
 
-        col1, col2, col3, col4 = st.columns([0.5,1,1,1])
-        col1.metric('Qtde. de Dias', value=qtde_total)
-        col2.metric('Abert. no Dia Seguinte Potitivo', value = f'{qtde_abert:.0%}')
-        col3.metric('Fecha. no Dia Seguinte Positivo', value = f'{qtde_fech:.0%}')
-        col4.metric('Variação no Dia Seguinte Positiva', value = f'{qtde_var:.0%}')
+        col1, col2, col3= st.columns(3)
+        col1.metric('Abert. no Dia Seguinte Potitivo', value = f'{qtde_abert:.0%}')
+        col2.metric('Fecha. no Dia Seguinte Positivo', value = f'{qtde_fech:.0%}')
+        col3.metric('Variação no Dia Seguinte Positiva', value = f'{qtde_var:.0%}')
 
         st.write('Dias onde', ticker, ' teve uma queda de mais de', -perc_queda, '%')
         st.table(dados_df)
-
-Quedas()
