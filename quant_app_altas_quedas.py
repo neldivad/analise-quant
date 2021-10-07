@@ -27,6 +27,9 @@ def altas_quedas():
             perc = -(perc_escolha / 100)  # Dividir o valor de perc por 100 para a busca
             indice = papel[papel["Retorno"] < perc].index  # Procurar pelas linhas onde o Retorno for menor que perc, e gerar a lista com os indices
 
+        if len(indice) == 0:
+            st.warning('Não há dias com a variação de queda ou alta escolhida!')
+            st.stop()
 
         # Bloco para verificar se o dia atual é um dos dias de queda escolhido. Se sim, apaga ele.
         if indice[-1] == (len(papel)-1):
