@@ -235,12 +235,12 @@ def strategy_test(capital, all_profits, drawdown, media_dias_total, media_dias_g
     media_dias_gain = f'{media_dias_gain:.2f}'
     media_dias_loss = f'{media_dias_loss:.2f}'
 
-    estatisticas = pd.DataFrame({'ITENS': ['Intervalo','Capital Inicial','Número de Operações', 'Gains', 'Loss', 'Lucro Bruto', 
-                                            'Prejuízo Bruto', ' Drawdown','Média Dias em Op.', 'Média Dias Op. Vencedoras', 'Média Dias Op. Perdedoras', 'Lucro Líquido'],
+    estatisticas = pd.DataFrame({'ITENS': ['Intervalo','Capital Inicial','Núm. de Operações', 'Gains', 'Loss', 'Lucro Bruto', 
+                                            'Prejuízo Bruto', ' Drawdown','Dias em Operações', 'Dias Op. Vencedoras', 'Dias Op. Perdedoras', 'Lucro Líquido'],
                         'ESTATÍSTICAS': ['5 anos',capital, num_operations, gains, losses, valor_gains, valor_loss, drawdown, media_dias_total, media_dias_gain, media_dias_loss, lucro_total]})
     estatisticas.set_index('ITENS', drop=True, inplace=True)
                             
-    col1, col2, col3  = st.columns([0.7, 0.03, 1])
+    col1, col2, col3  = st.columns([0.6, 0.03, 1])
     # st.dataframe(estatisticas)
     col1.table(estatisticas)
     with col3:
@@ -281,19 +281,34 @@ def capital_plot(saldos, lucros):
         go.Bar(x=cap_evolution['index'], y=cap_evolution['Profit'], name="Lucros/Trade",visible='legendonly'),
         secondary_y=True,
     )
-
     fig.update_layout(showlegend=True, hovermode="x unified",
                     width=650,
                     height=550,
-                    margin=dict(
-                    l=0,
-                    r=0,
-                    b=0,
-                    t=50,
-                    pad=4
-                ),
-                title_text='Curva Capital / Lucros por Trade'
+                    margin=dict(l=0, r=0, b=0, t=50, pad=4),
+                    title_text='Curva Capital / Lucros por Trade',
+                    legend=dict(yanchor="top",y=0.99, xanchor="left", x=0.01)
                     )
+    # Add images
+    fig.add_layout_image(
+            dict(
+                # source="https://images.plot.ly/language-icons/api-home/python-logo.png",
+                source="https://analisequant-mh2ir.ondigitalocean.app/media/b25913f6835e74fc51249994ddecaf68599311449505c3a07b1c49c4.png",
+                xref="x domain",
+                yref="y domain",
+                x=0.25,
+                y=0.55,
+                sizex=0.5,
+                sizey=0.5,
+                opacity=0.3,
+                layer="below"
+    )
+    )
+    fig.update_layout(legend=dict(
+    yanchor="top",
+    y=0.99,
+    xanchor="left",
+    x=0.01
+))
     fig.update_yaxes(showgrid=False)
     st.plotly_chart(fig)
 
@@ -301,6 +316,14 @@ def capital_plot(saldos, lucros):
 
 
 st.header('Backtesting IFR2')
+
+with st.expander('Detalhes do Setup IFR2'):
+    st.write("""
+         O Setup IFR2 utiliza o IFR de 2 períodos como sinal de entrada. Grafico diário, se o IFR de 2 períodos atingir um determindado valor
+         (Originalmente 30 ou 25), é feita a compra no fechamento do dia. A saída é feita na máxima dos 2 últimos dias. O Stop é no tempo, 
+         7 dias após a entrada, se o preço não atingir a máxima dos 2 ultimos dias como alvo.
+    """)
+
 
 lista_tickers = puxar_tickers_grafbolsa()
 col1, col2, col3 = st.columns(3)
@@ -320,6 +343,7 @@ with col2:
         dias_stop=None
 data_inicio = "2015-01-01"
 data_fim = "2020-12-30"
+
 
 capital, lucros, saldos, drawdown, media_dias_total, media_dias_gain, media_dias_loss  = backtest_ifr(ticker, nivel_ifr, capital, data_inicio, data_fim, stop_tempo, dias_stop)
 st.markdown('***')

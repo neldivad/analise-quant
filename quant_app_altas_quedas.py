@@ -33,8 +33,11 @@ def altas_quedas():
 
         # Bloco para verificar se o dia atual é um dos dias de queda escolhido. Se sim, apaga ele.
         if indice[-1] == (len(papel)-1):
-            papel = papel[:-1] # Tirar o ultimo dia
-            indice = papel[papel["Retorno"] < perc].index
+            papel_temp = papel[:-1] # Tirar o ultimo dia
+            if opcao == 'Alta':
+                indice = papel_temp[papel_temp["Retorno"] > perc].index
+            else:
+                indice == papel_temp[papel_temp["Retorno"] < perc].index
             dia_queda = papel.iloc[indice]
             dia_seguinte = papel.iloc[indice+1]
         else:
