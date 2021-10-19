@@ -18,7 +18,6 @@ import statsmodels as sm
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from datetime import datetime
-import quantstats as qs
 
 # st.set_page_config(  # Alternate names: setup_page, page, layout
 #     layout="wide",  # Can be "centered" or "wide". In the future also "dashboard", etc.
@@ -58,22 +57,34 @@ def sazonalidade():
                 if pais == 'Brasil' and opcao == 'Ações':
                     data_inicial = '1999-12-01'
                     data_final = datetime.today().strftime('%Y-%m-%d')
-                    retornos = yf.download(ticker + '.SA', start= data_inicial, end=data_final, progress=False)["Adj Close"].pct_change()
+                    retornos = yf.download(ticker + '.SA', start= data_inicial, end=data_final, interval='1mo', progress=False)["Adj Close"].pct_change()
                     preco = yf.download(ticker + '.SA', start= data_inicial, end=data_final, progress=False)["Adj Close"]
 
                 if pais == 'Brasil' and opcao == 'Indices':
                     retornos = \
-                    inv.get_index_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final)['Close'].pct_change()
-                    preco = inv.get_index_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final)['Close']
-
+                    inv.get_index_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final,
+                                                  interval='Monthly')['Close'].pct_change()
+                    preco = \
+                    inv.get_index_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final,
+                                                  interval='Daily')['Close']
                 if pais == 'Estados Unidos' and opcao == 'Ações':
-                    retornos = inv.get_stock_historical_data(ticker, country='united states', from_date=data_inicial, to_date=data_final)['Close'].pct_change()
-                    preco = inv.get_stock_historical_data(ticker, country='united states', from_date=data_inicial, to_date=data_final)['Close']
-
+                    retornos = \
+                        inv.get_stock_historical_data(ticker, country='united states', from_date=data_inicial,
+                                                      to_date=data_final,
+                                                      interval='Monthly')['Close'].pct_change()
+                    preco = \
+                        inv.get_stock_historical_data(ticker, country='united states', from_date=data_inicial,
+                                                      to_date=data_final,
+                                                      interval='Daily')['Close']
                 if pais == 'Estados Unidos' and opcao == 'Indices':
-                    retornos = inv.get_index_historical_data(ticker, country='united states', from_date=data_inicial, to_date=data_final)['Close'].pct_change()
-                    preco = inv.get_index_historical_data(ticker, country='united states', from_date=data_inicial, to_date=data_final)['Close']
-
+                    retornos = \
+                        inv.get_index_historical_data(ticker, country='united states', from_date=data_inicial,
+                                                      to_date=data_final,
+                                                      interval='Monthly')['Close'].pct_change()
+                    preco = \
+                        inv.get_index_historical_data(ticker, country='united states', from_date=data_inicial,
+                                                      to_date=data_final,
+                                                      interval='Daily')['Close']
                 preco = preco.fillna(method='bfill')
 
             except:
@@ -87,7 +98,15 @@ def sazonalidade():
 @st.cache(suppress_st_warning=True)
 def mapa_retornos(ticker, retornos):
     with st.expander("Retornos Mensais", expanded=False):
-        tabela_retornos = qs.stats.monthly_returns(retornos, eoy=False)
+        # Separar e agrupar os anos e meses
+        retorno_mensal = retornos.groupby([retornos.index.year.rename('Year'), retornos.index.month.rename('Month')]).mean()
+        # Criar e formatar a tabela pivot table
+        tabela_retornos = pd.DataFrame(retorno_mensal)
+        try:
+            tabela_retornos = pd.pivot_table(tabela_retornos, values='Close', index='Year', columns='Month')
+        except:
+            tabela_retornos = pd.pivot_table(tabela_retornos, values='Adj Close', index='Year', columns='Month')
+
         tabela_retornos.columns = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
         col1, col2, col3 = st.columns([0.1,1,0.1])
         with col2:
@@ -95,7 +114,7 @@ def mapa_retornos(ticker, retornos):
             fig, ax = plt.subplots(figsize=(12, 9))
             cmap = sns.color_palette('RdYlGn', 50)
             sns.heatmap(tabela_retornos, cmap=cmap, annot=True, fmt='.2%', center=0, vmax=0.02, vmin=-0.02, cbar=False,
-                        linewidths=2, xticklabels=True, yticklabels=True, ax=ax)
+                        linewidths=1, xticklabels=True, yticklabels=True, ax=ax)
             ax.set_title(ticker, fontsize=18)
             ax.set_yticklabels(ax.get_yticklabels(), rotation=0, verticalalignment='center', fontsize='12')
             ax.set_xticklabels(ax.get_xticklabels(), fontsize='12')
@@ -109,10 +128,9 @@ def mapa_retornos(ticker, retornos):
             media = media.transpose()
             fig, ax = plt.subplots(figsize=(12, 0.5))
             sns.heatmap(media, cmap=cmap, annot=True, fmt='.2%', center=0, vmax=0.02, vmin=-0.02, cbar=False,
-                        linewidths=2, xticklabels=True, yticklabels=True, ax=ax)
+                        linewidths=1, xticklabels=True, yticklabels=True, ax=ax)
             ax.set_yticklabels(ax.get_yticklabels(), rotation=0, verticalalignment='center', fontsize='11')
             st.pyplot(fig)
-
 
 @st.cache(suppress_st_warning=True)
 def calc_sazonalidade(preco):

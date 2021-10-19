@@ -202,26 +202,7 @@ def strategy_test(capital, all_profits, drawdown, media_dias_total, media_dias_g
     losses = num_operations - gains
     pct_losses = 100 - pct_gains
 
-    # st.markdown('**Backtesting de 5 Anos**')
-    # st.write("Numero de Operações =", num_operations)
-    # st.write("Gains =", gains, "ou", pct_gains.round(), "%", ' -> ', f'Lucro Bruto R$ {valor_gains:.2f}')
-    # st.write("Loss =", losses, "ou", pct_losses.round(), "%", ' -> ', f'Prejuízo Bruto R$ {valor_loss:.2f}')
-    # lucro_total = sum(all_profits)
-    # st.write("Lucro Líquido =", f'R$ {lucro_total:.2f}', ' / ', ((lucro_total/capital)*100).round(), "%") 
-    # st.write("Capital Final =", f'R$ {capital + lucro_total:.2f}') 
-
     lucro_total = sum(all_profits)
-    # col1, col2, col3, col4 = st.columns([0.4,0.7,0.7,0.7])
-    # col1.metric('Operações', value=num_operations)
-    # col2.metric('Capital Inicial', value = f'R$ {capital:.2f}')
-    # col3.metric('Lucro Liquido', value=f'R$ {lucro_total:.2f}', delta=str(((lucro_total/capital)*100).round()) + '%')
-    # col4.metric('Capital Final', value=f'R$ {capital + lucro_total:.2f}')
-
-    # col1, col2, col3, col4 = st.columns([0.4,0.4,0.7,0.7])
-    # col1.metric('Gains', value=int(gains), delta=str(pct_gains.round()) + '%')
-    # col2.metric('Loss', value=int(losses), delta=str(-pct_losses.round()) + '%')
-    # col3.metric('Lucro Bruto', value=f'R$ {valor_gains:.2f}')
-    # col4.metric('Prejuízo Bruto', value=f'R$ {valor_loss:.2f}')
 
     num_operations = str(num_operations)
     lucro_total = str(f'R$ {lucro_total:.2f}') + ' (' + str(((lucro_total/capital)*100).round()) + '%' + ')'
@@ -240,11 +221,22 @@ def strategy_test(capital, all_profits, drawdown, media_dias_total, media_dias_g
                         'ESTATÍSTICAS': ['5 anos',capital, num_operations, gains, losses, valor_gains, valor_loss, drawdown, media_dias_total, media_dias_gain, media_dias_loss, lucro_total]})
     estatisticas.set_index('ITENS', drop=True, inplace=True)
                             
-    col1, col2, col3  = st.columns([0.6, 0.03, 1])
+    # col1, col2, col3  = st.columns([0.5, 0.03, 1])
+    # # st.dataframe(estatisticas)
+    # col1.table(estatisticas)
+    # with col3:
+    #     capital_plot(saldos, lucros)
+
+
+    col1, col2  = st.columns([1,1])
     # st.dataframe(estatisticas)
-    col1.table(estatisticas)
-    with col3:
+    col1.table(estatisticas[0:6])
+    col2.table(estatisticas[6:12])
+
+    col1, col2, col3  = st.columns([0.1,1,0.1])
+    with col2:
         capital_plot(saldos, lucros)
+
 
 def capital_plot(saldos, lucros):
     lucros = [0] + lucros # make sure both lists are the same size
@@ -282,33 +274,20 @@ def capital_plot(saldos, lucros):
         secondary_y=True,
     )
     fig.update_layout(showlegend=True, hovermode="x unified",
-                    width=650,
-                    height=550,
+                    width=650, height=550,
                     margin=dict(l=0, r=0, b=0, t=50, pad=4),
                     title_text='Curva Capital / Lucros por Trade',
                     legend=dict(yanchor="top",y=0.99, xanchor="left", x=0.01)
                     )
     # Add images
     fig.add_layout_image(
-            dict(
-                # source="https://images.plot.ly/language-icons/api-home/python-logo.png",
-                source="https://analisequant-mh2ir.ondigitalocean.app/media/b25913f6835e74fc51249994ddecaf68599311449505c3a07b1c49c4.png",
-                xref="x domain",
-                yref="y domain",
-                x=0.25,
-                y=0.55,
-                sizex=0.5,
-                sizey=0.5,
-                opacity=0.3,
-                layer="below"
+            dict(source="https://analisequant-mh2ir.ondigitalocean.app/media/b25913f6835e74fc51249994ddecaf68599311449505c3a07b1c49c4.png",
+                xref="x domain", yref="y domain",
+                x=0.25, y=0.55,
+                sizex=0.5, sizey=0.5,
+                opacity=0.3, layer="below")
     )
-    )
-    fig.update_layout(legend=dict(
-    yanchor="top",
-    y=0.99,
-    xanchor="left",
-    x=0.01
-))
+    fig.update_layout(legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01)) #Controla a posição da legenda
     fig.update_yaxes(showgrid=False)
     st.plotly_chart(fig)
 
@@ -324,7 +303,7 @@ with st.expander('Detalhes do Setup IFR2'):
          7 dias após a entrada, se o preço não atingir a máxima dos 2 ultimos dias como alvo.
     """)
 
-
+st.sidebar.write('TESTE')
 lista_tickers = puxar_tickers_grafbolsa()
 col1, col2, col3 = st.columns(3)
 with col1:

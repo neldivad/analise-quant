@@ -4,6 +4,7 @@ import quant_app_carteira
 import quant_app_correlacao
 import quant_app_sazonalidade
 import quant_app_altas_quedas
+import quant_app_backtest_ifr
 import quant_app_raiox
 import quant_app_contato
 # import quant_app_carteira2
@@ -28,6 +29,7 @@ def main():
         "Correlações": page_correlacao,
         "Sazonalidade do Mercado": page_sazonalidade,
         "Analise de Altas e Quedas": page_altas_quedas,
+        # "Backtest IFR2": page_backtest_ifr,
         "Raio-X do Mercado": page_raiox,
         "Contato / Reporte de Erros": page_contato
     }
@@ -82,6 +84,9 @@ def page_sazonalidade():
 
 def page_altas_quedas():
     quant_app_altas_quedas.altas_quedas()
+
+def page_backtest_ifr():
+    quant_app_backtest_ifr.backtest_ifr()
 
 def page_raiox():
     quant_app_raiox.raiox()
