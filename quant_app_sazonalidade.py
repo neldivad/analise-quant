@@ -103,6 +103,7 @@ def mapa_retornos(ticker, retornos):
             st.pyplot(fig)
 
             # Media das rentabilidades
+            tabela_retornos[tabela_retornos == 0] = np.nan # Transformar os valores 0 para NaN para não contabilizar na média
             media = pd.DataFrame(tabela_retornos.mean())
             media.columns = ['Média']
             media = media.transpose()
