@@ -61,10 +61,9 @@ def backtest_sazonalidade():
                 st.session_state.ticker_ffn = str(ticker + '.SA')
 
             if pais == 'Brasil' and opcao == 'Indices':
-                st.session_state.retornos = \
-                st.session_state.preco = \
-                inv.get_index_historical_data(ticker, country='brazil', from_date=data_inicial, to_date=data_final,
-                                                interval='Daily')['Close']
+                st.session_state.preco = inv.get_index_historical_data(ticker, country='brazil', 
+                                                                        from_date=data_inicial, to_date=data_final,
+                                                                        interval='Daily')['Close']
             if pais == 'Estados Unidos' and opcao == 'Ações':
                 st.session_state.preco = \
                     inv.get_stock_historical_data(ticker, country='united states', from_date=data_inicial,
