@@ -37,7 +37,6 @@ def sazonalidade():
         st.write('Escolha entre Ações ou Indices')
         opcao = st.radio('', ('Ações', 'Indices'))
 
-
     if pais == 'Brasil' and opcao == 'Ações':
         lista = st.session_state.lista_tickers
         # lista = inv.get_stocks_list(country='brazil')
@@ -113,7 +112,6 @@ def mapa_retornos(ticker, retornos):
             ax.set_yticklabels(ax.get_yticklabels(), rotation=0, verticalalignment='center', fontsize='11')
             st.pyplot(fig)
 
-
 @st.cache(suppress_st_warning=True)
 def calc_sazonalidade(preco):
     decomposicao = sm.tsa.seasonal.seasonal_decompose(preco, model='additive', period=252) # Decomposição da Série de preços
@@ -158,7 +156,6 @@ def grafico_sazonalidade(df_pivot, ticker, preco):
         fig = make_subplots(specs=[[{"secondary_y": True}]])
 
         # Add traces
-
         fig.add_trace(
             go.Scatter(x=df_pivot['x'], y=df_pivot['Sazonalidade'], name="Sazonalidade"),
             secondary_y=False,
@@ -167,7 +164,6 @@ def grafico_sazonalidade(df_pivot, ticker, preco):
             go.Scatter(x=preco_ano.index, y=preco_ano.values, name="Preço ano atual",visible='legendonly'),
             secondary_y=True,
         )
-
         # Add figure title
         fig.update_layout(
             title_text='Sazonalidade Anual - ' + ticker
