@@ -29,7 +29,7 @@ def main():
         "Correlações": page_correlacao,
         "Sazonalidade do Mercado": page_sazonalidade,
         "Analise de Altas e Quedas": page_altas_quedas,
-        # "Backtest IFR2": page_backtest_ifr,
+        "Backtest IFR2": page_backtest_ifr,
         "Raio-X do Mercado": page_raiox,
         "Contato / Reporte de Erros": page_contato
     }
