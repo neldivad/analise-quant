@@ -36,11 +36,11 @@ def backtest_sazonalidade():
         st.write('Escolha entre Ações ou Indices')
         opcao = st.radio('', ('Ações', 'Indices'))
 
-    st.session_state.lista_tickers = ['WEGE3', 'VALE3', 'PETR4', 'BBDC4', 'ITUB4']
+    st.session_state.lista_tickers = ['WEGE3.SA', 'VALE3.SA', 'PETR4.SA', 'BBDC4.SA', 'ITUB4.SA', '^BVSP']
 
     if pais == 'Brasil' and opcao == 'Ações':
-        # lista = st.session_state.lista_tickers
-        lista = inv.get_stocks_list(country='brazil')
+        lista = st.session_state.lista_tickers
+        # lista = inv.get_stocks_list(country='brazil')
     if pais == 'Brasil' and opcao == 'Indices':
         lista = inv.get_indices_list(country='brazil')
     if pais == 'Estados Unidos' and opcao == 'Ações':
@@ -57,8 +57,10 @@ def backtest_sazonalidade():
             if pais == 'Brasil' and opcao == 'Ações':
                 data_inicial = '1999-12-01'
                 data_final = datetime.today().strftime('%Y-%m-%d')
-                st.session_state.preco = yf.download(ticker + '.SA', start= data_inicial, end=data_final, progress=False)["Adj Close"]
-                st.session_state.ticker_ffn = str(ticker + '.SA')
+                # st.session_state.preco = yf.download(ticker + '.SA', start= data_inicial, end=data_final, progress=False)["Adj Close"]
+                # st.session_state.ticker_ffn = str(ticker + '.SA')
+                st.session_state.preco = yf.download(ticker, start= data_inicial, end=data_final, progress=False)["Adj Close"]
+                st.session_state.ticker_ffn = str(ticker)
 
             if pais == 'Brasil' and opcao == 'Indices':
                 st.session_state.preco = inv.get_index_historical_data(ticker, country='brazil', 
@@ -150,7 +152,7 @@ def grafico_selecao(sazonalidade, ticker):
 
 def backtest(selecao, ticker):
     st.write(ticker)
-    data = ffn.get(ticker, start='2000-01-01', end='2020-12-31')
+    data = ffn.get(ticker, start='2010-01-01', end='2020-12-31')
     data = data.fillna(method='bfill')
     perf = data.calc_stats()
 
