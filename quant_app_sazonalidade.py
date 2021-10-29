@@ -83,7 +83,8 @@ def sazonalidade():
         sazonalidade = calc_sazonalidade(preco)
         grafico_sazonalidade(sazonalidade, ticker, preco)
 
-@st.cache(suppress_st_warning=True)
+# @st.cache(suppress_st_warning=True)
+# @st.experimental_memo
 def mapa_retornos(ticker, retornos):
     with st.expander("Retornos Mensais", expanded=False):
         tabela_retornos = qs.stats.monthly_returns(retornos, eoy=False)
@@ -113,7 +114,8 @@ def mapa_retornos(ticker, retornos):
             ax.set_yticklabels(ax.get_yticklabels(), rotation=0, verticalalignment='center', fontsize='11')
             st.pyplot(fig)
 
-@st.cache(suppress_st_warning=True)
+# @st.cache(suppress_st_warning=True)
+# @st.experimental_memo
 def calc_sazonalidade(preco):
     decomposicao = sm.tsa.seasonal.seasonal_decompose(preco, model='additive', period=252) # Decomposição da Série de preços
     sazonalidade = pd.DataFrame(decomposicao.seasonal) # Cria um dataframe com a parte de sazonalidade
