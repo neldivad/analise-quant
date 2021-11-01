@@ -4,6 +4,7 @@ import yfinance as yf
 
 def altas_quedas():
     st.header('Altas e Quedas e comportamento no dia seguinte')
+    st.text('Analise como foi o comportamento no dia seguinte à quedas ou altas especificas.')
     st.write('')
     col1, col2 = st.columns(2)
     with col1:
