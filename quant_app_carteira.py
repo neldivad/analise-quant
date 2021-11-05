@@ -24,7 +24,7 @@ def carteira():
     st.markdown('Insira os Ativos que compõem sua Carteira')
     col1, col2 = st.columns(2)
     with col1:
-      st.session_state.papel = st.selectbox('Insira o Ativo', st.session_state.lista_tickers, help='Insira o ativo no caixa de seleção(Não é necessario apagar o ativo, apenas clique e digite as iniciais que a busca irá encontrar)')
+      st.session_state.papel = st.selectbox('Insira o Ativo', st.session_state.tabela_papeis['Ticker'], help='Insira o ativo no caixa de seleção(Não é necessario apagar o ativo, apenas clique e digite as iniciais que a busca irá encontrar)')
     with col2:
       st.session_state.lote = st.text_input('Quantidade',value='100')
 
@@ -106,19 +106,17 @@ def botao_inserir():
       corr = retornos[st.session_state.papel + '.SA'].corr(retornos['^BVSP'])
       beta = corr * (std_asset / std_bench)
       valor_total = float(st.session_state.lote) * float(ultimo_preco)
-      #setor = ticker.info['sector']
-      #subsetor = ticker.info['industry']
-      #if setor == '' or subsetor =='':
-      #  setor = 'ETF'
-      #  subsetor = ticker.info['shortName']
-      #if 'FII' in ticker.info['shortName']:
-      #  setor = 'FII'
-      try:
-        setor = fundamentus.get_papel(st.session_state.papel)['Setor'][0]
-        subsetor = fundamentus.get_papel(st.session_state.papel)['Subsetor'][0]
-      except:
-        setor = 'ETFs/FIIs/BDRs'
-        subsetor = 'ETFs/FIIs/BDRs'
+      # Puxar Setores da API fundamentus
+      # try:
+      #   setor = fundamentus.get_papel(st.session_state.papel)['Setor'][0]
+      #   subsetor = fundamentus.get_papel(st.session_state.papel)['Subsetor'][0]
+      # except:
+      #   setor = 'ETFs/FIIs/BDRs'
+      #   subsetor = 'ETFs/FIIs/BDRs'
+
+      # Puxar Setores do dataframe de papeis (CSV)
+      setor = st.session_state.tabela_papeis[st.session_state.tabela_papeis['Ticker']==st.session_state.papel]['Setor'].iloc[0]
+      subsetor = st.session_state.tabela_papeis[st.session_state.tabela_papeis['Ticker']==st.session_state.papel]['SubSetor'].iloc[0]
       st.session_state.portifolio = st.session_state.portifolio.append({'Ação': st.session_state.papel, 'Qtde': st.session_state.lote, 'Últ. Preço': ultimo_preco, 'Valor na Carteira': valor_total,
                                                   'Setor': setor, 'SubSetor': subsetor, 'Beta do Ativo': beta}, ignore_index=True)
       calc_porc_e_betapond()
