@@ -97,7 +97,7 @@ def botao_inserir():
       #ticker = yf.Ticker(st.session_state.papel + '.SA')
       #ultimo_preco = yf.download(st.session_state.papel + '.SA',period='1d')['Adj Close'][0] #Pegar o ultimo preço de fechamento da lista
       precos = yf.download([st.session_state.papel + '.SA', '^BVSP'],period='1y', progress=False)['Adj Close']
-      precos = precos.fillna(method='bfill')
+      precos = precos.fillna(method='ffill')
       ultimo_preco = precos[st.session_state.papel + '.SA'].tail(1)[0] # Ultimo preço do Ativo
       retornos = precos.pct_change()
       retornos = retornos[1:]
@@ -338,8 +338,3 @@ def calculo_rentabilidade():
         st.markdown('Clique nos itens da Legenda para escolher quais visualizar ou não.')
         if len(var_carteira) < 200:
           st.error('Algum ativo da sua carteira possui menos de 1 ano de histórico. A rentabilidade da carteira será calculada a partir deste ativo.')
-
-
-
-
-
