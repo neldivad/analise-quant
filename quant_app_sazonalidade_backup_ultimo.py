@@ -38,7 +38,7 @@ def sazonalidade():
 
 
     if pais == 'Brasil' and opcao == 'Ações':
-        lista = st.session_state.lista_tickers
+        lista = st.session_state.tabela_papeis['Ticker']
         # lista = inv.get_stocks_list(country='brazil')
     if pais == 'Brasil' and opcao == 'Indices':
         lista = inv.get_indices_list(country='brazil')

@@ -8,7 +8,7 @@ def altas_quedas():
     st.write('')
     col1, col2 = st.columns(2)
     with col1:
-        ticker = st.selectbox('Escolha a Ação (Clique no campo e digite as iniciais do Ticker)', st.session_state.lista_tickers)
+        ticker = st.selectbox('Escolha a Ação (Clique no campo e digite as iniciais do Ticker)', st.session_state.tabela_papeis['Ticker'])
     with col2:
         perc_escolha = st.number_input(
             'Entre com a %  (Ex.: 10 para listar os dias em que a Ação caiu ou subiu mais do que 10%', min_value=2, value=10)

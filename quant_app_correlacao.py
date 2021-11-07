@@ -14,7 +14,7 @@ import math
 def correlacao():
   st.header('Análise de Correlação')
   with st.form(key='Correlacao_Inserir_Ativos'):
-    st.session_state.tickers_sel = st.multiselect('Insira os Ativos para analisar as correlações',st.session_state.lista_tickers)
+    st.session_state.tickers_sel = st.multiselect('Insira os Ativos para analisar as correlações',st.session_state.tabela_papeis['Ticker'])
     if st.form_submit_button(label='Analisar Correlações'): 
       if len(st.session_state.tickers_sel) == 0:
         st.error('Lista Vazia. Insira ao menos 1 ativo!')
