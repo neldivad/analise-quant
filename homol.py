@@ -187,9 +187,12 @@ def homol():
         col1, col2, col3, col4 = st.columns([.4,.7,.9,1]) # Cria as colunas para disposição dos botões. Os numeros são os tamanhos para o alinhamento
         with col2:
             if st.form_submit_button(label='Inserir Ativo', help='Clique para inserir o Ativo e a Quantidade na Carteira'):
-                if 'grid_response' in st.session_state:
-                    st.session_state.portifolio = st.session_state.grid_response['data']
-                st.session_state.portifolio = st.session_state.portifolio.append({'Ação': st.session_state.papel, 'Qtde': st.session_state.lote}, ignore_index=True)
+                if any(st.session_state.portifolio['Ação']==st.session_state.papel): # Verificar se o Ativo já existe no DataFrame(Carteira)
+                    st.error('Ativo já existe na carteira. Por favor verifique!')
+                else:
+                    if 'grid_response' in st.session_state:
+                        st.session_state.portifolio = st.session_state.grid_response['data']
+                    st.session_state.portifolio = st.session_state.portifolio.append({'Ação': st.session_state.papel, 'Qtde': st.session_state.lote}, ignore_index=True)
 
         with col4:
             if st.form_submit_button(label='Apagar Ativo', help='Clique para apagar o Ativo selecionado'):
