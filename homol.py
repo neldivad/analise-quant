@@ -1,328 +1,233 @@
-from pandas.core.frame import DataFrame
 import streamlit as st
-import pandas as pd
+import pandas as pd 
 import numpy as np
-import matplotlib.pyplot as plt
-import yfinance as yf
-import math
+import altair as alt
+from itertools import cycle
 
-st.set_page_config(  # Alternate names: setup_page, page, layout
-    layout="wide",  # Can be "centered" or "wide". In the future also "dashboard", etc.
-    initial_sidebar_state="auto",  # Can be "auto", "expanded", "collapsed"
-    page_title=None,  # String or None. Strings get appended with "• Streamlit".
-    page_icon=None,  # String, anything supported by st.image, or None.
-)
-############################
-############################
-# RETIRAR ESSE BLOCO QDO MIGRAR PARA A PAGINA
-############################
-############################
+from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode, JsCode
 
-@st.cache
-def puxar_tickers_grafbolsa():
-    url = 'http://www.grafbolsa.com/index.html'
-    tabela = pd.read_html(url)[1][3:]  # Pega a 2º tabela, da 3º linha para baixo
-    tabela = tabela.sort_values(9)  # Classifica em ordem alfabetica pela coluna do código
-    lista_tickers = tabela[9].to_list()  # Transforma a Serie em lista, para ser usada nos widgets
-    return lista_tickers
+def exemplo():
+    #Example controlers
+    st.sidebar.subheader("St-AgGrid example options")
 
-############################
-############################
-# RETIRAR ESSE BLOCO QDO MIGRAR PARA A PAGINA
-############################
-############################
+    sample_size = st.sidebar.number_input("rows", min_value=10, value=10)
+    grid_height = st.sidebar.number_input("Grid height", min_value=200, max_value=800, value=200)
 
-#Função para calculo do IFR2
-def rsi(data, column, window=2):   
-    
-    data = data.copy()
-    
-    # Establish gains and losses for each day
-    data["Variation"] = data[column].diff()
-    data = data[1:]
-    data["Gain"] = np.where(data["Variation"] > 0, data["Variation"], 0)
-    data["Loss"] = np.where(data["Variation"] < 0, data["Variation"], 0)
+    return_mode = st.sidebar.selectbox("Return Mode", list(DataReturnMode.__members__), index=1)
+    return_mode_value = DataReturnMode.__members__[return_mode]
 
-    # Calculate simple averages so we can initialize the classic averages
-    simple_avg_gain = data["Gain"].rolling(window).mean()
-    simple_avg_loss = data["Loss"].abs().rolling(window).mean()
-    classic_avg_gain = simple_avg_gain.copy()
-    classic_avg_loss = simple_avg_loss.copy()
+    update_mode = st.sidebar.selectbox("Update Mode", list(GridUpdateMode.__members__), index=6)
+    update_mode_value = GridUpdateMode.__members__[update_mode]
 
-    for i in range(window, len(classic_avg_gain)):
-        classic_avg_gain[i] = (classic_avg_gain[i - 1] * (window - 1) + data["Gain"].iloc[i]) / window
-        classic_avg_loss[i] = (classic_avg_loss[i - 1] * (window - 1) + data["Loss"].abs().iloc[i]) / window
-    
-    # Calculate the RSI
-    RS = classic_avg_gain / classic_avg_loss
-    RSI = 100 - (100 / (1 + RS))
-    return RSI
-
-@st.cache
-def backtest_ifr(ticker, nivel_ifr, capital, data_inicio, data_fim, stop_tempo, dias_stop):
-    # Coleta dos dados
-    df = yf.download(ticker + ".SA", start=data_inicio, end=data_fim, progress=False).copy()[["Open", "High", "Close", "Adj Close"]]
-    # Montar o Dataframe com as informações, IFR, Target, BuyPrice e SellPrice
-    # Criar a coluna com o IFR2
-    df["IFR2"] = rsi(df, column="Adj Close")
-
-    # Criar a coluna com as máximas dos dois ultimos dias
-    df["Target1"] = df["High"].shift(1)
-    df["Target2"] = df["High"].shift(2)
-    df["Target"] = df[["Target1", "Target2"]].max(axis=1)
-
-    # We don't need them anymore
-    df.drop(columns=["Target1", "Target2"], inplace=True)
-
-    # Define exact buy price
-    df["Buy Price"] = np.where(df["IFR2"] <= nivel_ifr, df["Close"], np.nan)
-
-    # Define exact sell price
-    df["Sell Price"] = np.where(
-        df["High"] > df['Target'], 
-        np.where(df['Open'] > df['Target'], df['Open'], df['Target']),
-        np.nan)
-
-    # Create a function to round any number to the smalles multiple of 100
-    def round_down(x):
-        return int(math.floor(x / 100.0)) * 100
-
-    saldos = [capital] # list with the total capital after every operation
-    all_profits = [] # list with profits for every operation
-    days_in_operation = 0
-    gains_total_days = 0
-    gains_total_operations = 0
-    losses_total_days = 0
-    losses_total_operations = 0
-    max_days = dias_stop # Dias para Stop no tempo
-
-    ongoing = False 
-
-    if stop_tempo:
-        for i in range(0,len(df)):
-            if ongoing == True:
-                days_in_operation += 1
-                # Condições de saída do trade, ou no tempo ou na max dos dois ultimos dias
-                if days_in_operation == max_days or ~(np.isnan(df['Sell Price'][i])):
-                    # Define exit point and total profit
-                    exit = np.where(~(np.isnan(df['Sell Price'][i])), 
-                                    df['Sell Price'][i], 
-                                    df['Close'][i])
-                    profit = shares * (exit - entry)
-                    # Append profit to list and create a new entry with the capital
-                    # after the operation is complete
-                    all_profits += [profit]
-                    current_capital = saldos[-1] # current capital is the last entry in the list
-                    saldos += [current_capital + profit]
-
-                    # Calcular os dias  de operação
-
-                    # If profit is positive we increment the gains' variables
-                    # Else, we increment the losses' variables
-                    if profit > 0: 
-                        gains_total_days += days_in_operation
-                        gains_total_operations += 1
-                    else: 
-                        losses_total_days += days_in_operation
-                        losses_total_operations += 1
-                    ongoing = False
-            else:
-                if ~(np.isnan(df['Buy Price'][i])):
-                    entry = df['Buy Price'][i]
-                    shares = round_down(capital / entry)
-                    # Operation has started, initialize count of days until it ends
-                    days_in_operation = 0
-                    ongoing = True
+    #enterprise modules
+    enable_enterprise_modules = st.sidebar.checkbox("Enable Enterprise Modules")
+    if enable_enterprise_modules:
+        enable_sidebar =st.sidebar.checkbox("Enable grid sidebar", value=False)
     else:
-        for i in range(0,len(df)):
-            if ongoing == True:
-                days_in_operation += 1
-                if ~(np.isnan(df['Sell Price'][i])):
-                    # Define exit point and total profit
-                    exit = df['Sell Price'][i]
-                    profit = shares * (exit - entry)
-                    # Append profit to list and create a new entry with the capital
-                    # after the operation is complete
-                    all_profits += [profit]
-                    current_capital = saldos[-1] # current capital is the last entry in the list
-                    saldos += [current_capital + profit]
-                    ongoing = False
-                    # Calcular os dias  de operação
-                    is_positive = exit > entry
-                    # If profit is positive we increment the gains' variables
-                    # Else, we increment the losses' variables
-                    if is_positive > 0: 
-                        gains_total_days += days_in_operation
-                        gains_total_operations += 1
-                    else: 
-                        losses_total_days += days_in_operation
-                        losses_total_operations += 1
+        enable_sidebar = False
+
+    #features
+    fit_columns_on_grid_load = st.sidebar.checkbox("Fit Grid Columns on Load")
+
+    enable_selection=st.sidebar.checkbox("Enable row selection", value=True)
+    if enable_selection:
+        st.sidebar.subheader("Selection options")
+        selection_mode = st.sidebar.radio("Selection Mode", ['single','multiple'])
+        
+        use_checkbox = st.sidebar.checkbox("Use check box for selection")
+        if use_checkbox:
+            groupSelectsChildren = st.sidebar.checkbox("Group checkbox select children", value=True)
+            groupSelectsFiltered = st.sidebar.checkbox("Group checkbox includes filtered", value=True)
+
+        if ((selection_mode == 'multiple') & (not use_checkbox)):
+            rowMultiSelectWithClick = st.sidebar.checkbox("Multiselect with click (instead of holding CTRL)", value=False)
+            if not rowMultiSelectWithClick:
+                suppressRowDeselection = st.sidebar.checkbox("Suppress deselection (while holding CTRL)", value=False)
             else:
-                if ~(np.isnan(df['Buy Price'][i])):
-                    entry = df['Buy Price'][i]
-                    shares = round_down(capital / entry)
-                    ongoing = True
-                    # Operation has started, initialize count of days until it ends
-                    days_in_operation = 0
+                suppressRowDeselection=False
+        st.sidebar.text("___")
 
-    # Calcular o Drawdown
+    enable_pagination = st.sidebar.checkbox("Enable pagination", value=False)
+    if enable_pagination:
+        st.sidebar.subheader("Pagination options")
+        paginationAutoSize = st.sidebar.checkbox("Auto pagination size", value=True)
+        if not paginationAutoSize:
+            paginationPageSize = st.sidebar.number_input("Page size", value=5, min_value=0, max_value=sample_size)
+        st.sidebar.text("___")
 
-    def get_drawdown(data, column):
-        data["Max"] = data[column].cummax()
-        data["Delta"] = data['Max'] - data[column]
-        data["Drawdown"] = 100 * (data["Delta"] / data["Max"])
-        max_drawdown = data["Drawdown"].max()
-        return max_drawdown
 
-    saldos_df = pd.DataFrame(data=saldos, columns=["Saldos"])
-    drawdown = get_drawdown(data=saldos_df, column="Saldos")
+    df = pd.DataFrame({'month': [1, 4, 7, 10],'year': [2012, 2014, 2013, 2014],'sale':[55, 40, 84, 31]})
 
-    # Define total number of days and the total number of operations during the period
-    total_days = gains_total_days + losses_total_days
-    total_operations = gains_total_operations + losses_total_operations
 
-    media_dias_total = total_days / total_operations
-    media_dias_gain = gains_total_days / gains_total_operations
-    media_dias_loss = losses_total_days / losses_total_operations
+    #Infer basic colDefs from dataframe types
+    gb = GridOptionsBuilder.from_dataframe(df)
 
-    return capital, all_profits, saldos, drawdown, media_dias_total, media_dias_gain, media_dias_loss
+    #customize gridOptions
+    gb.configure_default_column(groupable=True, value=True, enableRowGroup=True, aggFunc='sum', editable=True)
 
-# @st.cache
-def strategy_test(capital, all_profits, drawdown, media_dias_total, media_dias_gain, media_dias_loss):
-    num_operations = len(all_profits)
-    gains = sum(x >= 0 for x in all_profits)
-    valor_gains = 0
-    valor_loss = 0
-    for x in all_profits:
-        if x > 0:
-            valor_gains = valor_gains + x 
+    # gb.configure_column("date_tz_aware", type=["dateColumnFilter","customDateTimeFormat"], custom_format_string='yyyy-MM-dd HH:mm zzz', pivot=True)
+
+    # gb.configure_column("apple", type=["numericColumn","numberColumnFilter","customNumericFormat"], precision=2, aggFunc='sum')
+    # gb.configure_column("banana", type=["numericColumn", "numberColumnFilter", "customNumericFormat"], precision=1, aggFunc='avg')
+    # gb.configure_column("chocolate", type=["numericColumn", "numberColumnFilter", "customCurrencyFormat"], custom_currency_symbol="R$", aggFunc='max')
+
+    #configures last row to use custom styles based on cell's value, injecting JsCode on components front end
+
+    cellsytle_jscode = JsCode("""
+    function(params) {
+        if (params.value == 'A') {
+            return {
+                'color': 'white',
+                'backgroundColor': 'darkred'
+                
+            }
+        } else {
+            return {
+                'color': 'black',
+                'backgroundColor': 'white'
+            }
+        }
+    };
+    """)
+    # gb.configure_column("month", cellStyle=cellsytle_jscode)
+
+    if enable_sidebar:
+        gb.configure_side_bar()
+
+    if enable_selection:
+        gb.configure_selection(selection_mode)
+        if use_checkbox:
+            gb.configure_selection(selection_mode, use_checkbox=True, groupSelectsChildren=groupSelectsChildren, groupSelectsFiltered=groupSelectsFiltered)
+        if ((selection_mode == 'multiple') & (not use_checkbox)):
+            gb.configure_selection(selection_mode, use_checkbox=False, rowMultiSelectWithClick=rowMultiSelectWithClick, suppressRowDeselection=suppressRowDeselection)
+
+    if enable_pagination:
+        if paginationAutoSize:
+            gb.configure_pagination(paginationAutoPageSize=True)
         else:
-            valor_loss = valor_loss + x
-    pct_gains = 100 * (gains / num_operations)
-    losses = num_operations - gains
-    pct_losses = 100 - pct_gains
+            gb.configure_pagination(paginationAutoPageSize=False, paginationPageSize=paginationPageSize)
 
-    # st.markdown('**Backtesting de 5 Anos**')
-    # st.write("Numero de Operações =", num_operations)
-    # st.write("Gains =", gains, "ou", pct_gains.round(), "%", ' -> ', f'Lucro Bruto R$ {valor_gains:.2f}')
-    # st.write("Loss =", losses, "ou", pct_losses.round(), "%", ' -> ', f'Prejuízo Bruto R$ {valor_loss:.2f}')
-    # lucro_total = sum(all_profits)
-    # st.write("Lucro Líquido =", f'R$ {lucro_total:.2f}', ' / ', ((lucro_total/capital)*100).round(), "%") 
-    # st.write("Capital Final =", f'R$ {capital + lucro_total:.2f}') 
+    gb.configure_grid_options(domLayout='normal')
+    gridOptions = gb.build()
 
-    lucro_total = sum(all_profits)
-    # col1, col2, col3, col4 = st.columns([0.4,0.7,0.7,0.7])
-    # col1.metric('Operações', value=num_operations)
-    # col2.metric('Capital Inicial', value = f'R$ {capital:.2f}')
-    # col3.metric('Lucro Liquido', value=f'R$ {lucro_total:.2f}', delta=str(((lucro_total/capital)*100).round()) + '%')
-    # col4.metric('Capital Final', value=f'R$ {capital + lucro_total:.2f}')
+    #Display the grid
+    st.header("Streamlit Ag-Grid")
 
-    # col1, col2, col3, col4 = st.columns([0.4,0.4,0.7,0.7])
-    # col1.metric('Gains', value=int(gains), delta=str(pct_gains.round()) + '%')
-    # col2.metric('Loss', value=int(losses), delta=str(-pct_losses.round()) + '%')
-    # col3.metric('Lucro Bruto', value=f'R$ {valor_gains:.2f}')
-    # col4.metric('Prejuízo Bruto', value=f'R$ {valor_loss:.2f}')
-
-    num_operations = str(num_operations)
-    lucro_total = str(f'R$ {lucro_total:.2f}') + ' (' + str(((lucro_total/capital)*100).round()) + '%' + ')'
-    capital = f'R$ {capital:.2f}'
-    gains = str(gains) + ' (' + str(pct_gains.round()) + '%' + ')'
-    losses = str(losses) + ' (' + str(pct_losses.round()) + '%' + ')'
-    valor_gains = f'R$ {valor_gains:.2f}'
-    valor_loss = f'R$ {valor_loss:.2f}'
-    drawdown = str(drawdown.round()) + '%'
-    media_dias_total = f'{media_dias_total:.2f}'
-    media_dias_gain = f'{media_dias_gain:.2f}'
-    media_dias_loss = f'{media_dias_loss:.2f}'
-
-    estatisticas = pd.DataFrame({'ITENS': ['Intervalo','Capital Inicial','Número de Operações', 'Gains', 'Loss', 'Lucro Bruto', 
-                                            'Prejuízo Bruto', ' Drawdown','Média Dias em Op.', 'Média Dias Op. Vencedoras', 'Média Dias Op. Perdedoras', 'Lucro Líquido'],
-                        'ESTATÍSTICAS': ['5 anos',capital, num_operations, gains, losses, valor_gains, valor_loss, drawdown, media_dias_total, media_dias_gain, media_dias_loss, lucro_total]})
-    estatisticas.set_index('ITENS', drop=True, inplace=True)
-                            
-    col1, col2, col3  = st.columns([0.7, 0.03, 1])
-    # st.dataframe(estatisticas)
-    col1.table(estatisticas)
-    with col3:
-        capital_plot(saldos, lucros)
-
-def capital_plot(saldos, lucros):
-    lucros = [0] + lucros # make sure both lists are the same size
-    cap_evolution = pd.DataFrame({'Capital': saldos, 'Profit': lucros})
-    # st.markdown('**Curva de Capital**')
-    # st.area_chart(cap_evolution['Capital'])
-    # st.markdown('**Lucros / Trade**')
-    # st.bar_chart(cap_evolution['Profit'])
-    cap_evolution.reset_index(inplace=True)
-    
-    # import altair as alt
-    # cap_evolution.reset_index(inplace=True)
-    # base = alt.Chart(cap_evolution).encode(x='index')
-    # bar = base.mark_bar().encode(y='Profit')
-    # line =  base.mark_line(color='red').encode(y='Capital')
-    # st.altair_chart(bar + line)
-
-    # import altair as alt
-     # graph = alt.Chart(cap_evolution). mark_line().encode(x='index', y='Capital')
-    # st.altair_chart(graph)
-
-    import plotly.graph_objects as go
-    from plotly.subplots import make_subplots
-
-    fig = make_subplots(specs=[[{"secondary_y": True}]])
-
-    # Add traces
-
-    fig.add_trace(
-        go.Scatter(x=cap_evolution['index'], y=cap_evolution['Capital'], name="Capital"),
-        secondary_y=False,
-    )
-    fig.add_trace(
-        go.Bar(x=cap_evolution['index'], y=cap_evolution['Profit'], name="Lucros/Trade",visible='legendonly'),
-        secondary_y=True,
-    )
-
-    fig.update_layout(showlegend=True, hovermode="x unified",
-                    width=650,
-                    height=550,
-                    margin=dict(
-                    l=0,
-                    r=0,
-                    b=0,
-                    t=50,
-                    pad=4
-                ),
-                title_text='Curva Capital / Lucros por Trade'
-                    )
-    fig.update_yaxes(showgrid=False)
-    st.plotly_chart(fig)
+    grid_response = AgGrid(
+        df, 
+        gridOptions=gridOptions,
+        height=grid_height, 
+        width='100%',
+        data_return_mode=return_mode_value, 
+        update_mode=update_mode_value,
+        fit_columns_on_grid_load=fit_columns_on_grid_load,
+        allow_unsafe_jscode=True, #Set it to True to allow jsfunction to be injected
+        enable_enterprise_modules=enable_enterprise_modules,
+        )
 
 
 
+    df = grid_response['data']
+    st.dataframe(df)
+    # selected = grid_response['selected_rows']
+    # selected_df = pd.DataFrame(selected)
 
-st.header('Backtesting IFR2')
+    with st.spinner("Displaying results..."):
+        st.subheader("Returned grid data:")
+        # st.dataframe(grid_response['data'])
 
-lista_tickers = puxar_tickers_grafbolsa()
-col1, col2, col3 = st.columns(3)
-with col1:
-    ticker = st.selectbox('Selecione o Papel', lista_tickers)
-with col2: 
-    nivel_ifr = st.number_input('Nível de IFR para compra',min_value=5, max_value=50, value=25)
-with col3:
-    capital = st.number_input('Capital inicial',min_value=1000, value=10000)
-with col1:
-    st.write('Definir "Stop no Tempo" ou "Sem Stop"')
-    stop_tempo = st.checkbox('Stop do Tempo')
-with col2:
-    if stop_tempo:
-        dias_stop = st.number_input('Dias para Stop no Tempo',min_value=1, max_value=25, value=7)
-    else:
-        dias_stop=None
-data_inicio = "2015-01-01"
-data_fim = "2020-12-30"
+        st.subheader("grid selection:")
+        st.write(grid_response['selected_rows'])
 
-capital, lucros, saldos, drawdown, media_dias_total, media_dias_gain, media_dias_loss  = backtest_ifr(ticker, nivel_ifr, capital, data_inicio, data_fim, stop_tempo, dias_stop)
-st.markdown('***')
-strategy_test(capital, lucros, drawdown, media_dias_total, media_dias_gain, media_dias_loss)
-st.markdown('***')
-# capital_plot(saldos, lucros)
+def exemplo_enxuto():
+    df = pd.DataFrame({'month': [1, 4, 7, 10],'year': [2012, 2014, 2013, 2014],'sale':[55, 40, 84, 31]})
+    gb = GridOptionsBuilder.from_dataframe(df)
+    gb.configure_default_column(groupable=True, value=True, enableRowGroup=True, aggFunc='sum', editable=True)
+    gb.configure_selection('single', use_checkbox=True, groupSelectsChildren=True, groupSelectsFiltered=True)
+    gb.configure_grid_options(domLayout='normal')
+    gridOptions = gb.build()
+    #Display the grid
+    st.header("Streamlit Ag-Grid")
+
+    return_mode = ['AS_INPUT', 'FILTERED', 'FILTERED_AND_SORTED']
+    return_mode_value = DataReturnMode.__members__[return_mode[2]]
+    update_mode = ['NO_UPDATE', 'MANUAL', 'VALUE_CHANGED', 'SELECTION_CHANGED', 'FILTERING_CHANGED', 'SORTING_CHANGED', 'MODEL_CHANGED']
+    update_mode_value = GridUpdateMode.__members__[update_mode[6]]
+
+    grid_response = AgGrid(
+        df, 
+        gridOptions=gridOptions,
+        height=200, 
+        width='100%',
+        data_return_mode=return_mode_value, 
+        update_mode=update_mode_value,
+        fit_columns_on_grid_load=True,
+        allow_unsafe_jscode=True, #Set it to True to allow jsfunction to be injected
+        )
+    # df = grid_response['data']
+    # st.dataframe(df)
+    # st.subheader("Returned grid data:")
+    st.dataframe(grid_response['data'])
+    # st.subheader("grid selection:")
+    # st.write(grid_response['selected_rows'])
+
+
+def homol():
+    lista = ['PETR4', 'WEGE3', 'VALE3', 'MGLU3', 'EQTL3']
+    if 'portifolio' not in st.session_state:
+        st.session_state.portifolio = pd.DataFrame(columns=['Ação', 'Qtde'])
+    with st.form(key='Carteira_Inserir_Ativos'):
+        st.markdown('Insira os Ativos que compõem sua Carteira')
+        col1, col2 = st.columns(2)
+        with col1:
+            st.session_state.papel = st.selectbox('Insira o Ativo', lista, help='Insira o ativo no caixa de seleção(Não é necessario apagar o ativo, apenas clique e digite as iniciais que a busca irá encontrar)')
+        with col2:
+            st.session_state.lote = st.text_input('Quantidade',value='100')
+
+        col1, col2, col3, col4 = st.columns([.4,.7,.9,1]) # Cria as colunas para disposição dos botões. Os numeros são os tamanhos para o alinhamento
+        with col2:
+            if st.form_submit_button(label='Inserir Ativo', help='Clique para inserir o Ativo e a Quantidade na Carteira'):
+                if 'grid_response' in st.session_state:
+                    st.session_state.portifolio = st.session_state.grid_response['data']
+                st.session_state.portifolio = st.session_state.portifolio.append({'Ação': st.session_state.papel, 'Qtde': st.session_state.lote}, ignore_index=True)
+
+        with col4:
+            if st.form_submit_button(label='Apagar Ativo', help='Clique para apagar o Ativo selecionado'):
+                if len(st.session_state.papel_selecao) != 0:
+                    st.session_state.portifolio.drop(st.session_state.portifolio[st.session_state.portifolio['Ação'] == st.session_state.papel_selecao[0].get('Ação')].index, inplace = True)
+                else:
+                    st.warning("Vc não selecionou nada cacete!")
+                
+    gb = GridOptionsBuilder.from_dataframe(st.session_state.portifolio)
+    gb.configure_default_column(groupable=True, value=True, enableRowGroup=True, aggFunc='sum', editable=False)
+    gb.configure_column('Qtde', editable=True, singleClickEdit=True)
+    gb.configure_selection('single', use_checkbox=True, groupSelectsChildren=True, groupSelectsFiltered=True)
+    gb.configure_grid_options(domLayout='normal')
+    gridOptions = gb.build()
+    #Display the grid
+    return_mode = ['AS_INPUT', 'FILTERED', 'FILTERED_AND_SORTED']
+    return_mode_value = DataReturnMode.__members__[return_mode[2]]
+    update_mode = ['NO_UPDATE', 'MANUAL', 'VALUE_CHANGED', 'SELECTION_CHANGED', 'FILTERING_CHANGED', 'SORTING_CHANGED', 'MODEL_CHANGED']
+    update_mode_value = GridUpdateMode.__members__[update_mode[6]]
+
+    st.session_state.grid_response = AgGrid(
+        st.session_state.portifolio, 
+        gridOptions=gridOptions,
+        height=200, 
+        width='100%',
+        data_return_mode=return_mode_value, 
+        update_mode=update_mode_value,
+        fit_columns_on_grid_load=True,
+        allow_unsafe_jscode=True, #Set it to True to allow jsfunction to be injected
+        )
+    st.write('Clique na Qtde para alterar caso necessário')
+    # st.session_state.portifolio = grid_response['data']
+    # st.dataframe(df)
+    # st.subheader("Returned grid data:")
+    st.dataframe(st.session_state.grid_response['data'])
+    # st.subheader("grid selection:")
+    # st.write(st.session_state.grid_response['selected_rows'])
+    st.session_state.papel_selecao = st.session_state.grid_response['selected_rows']
+# exemplo()
+# exemplo_enxuto()
+homol()
