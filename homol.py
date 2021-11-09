@@ -1,3 +1,4 @@
+from pandas.io.parsers import read_csv
 import streamlit as st
 import pandas as pd 
 import numpy as np
@@ -5,6 +6,7 @@ import altair as alt
 from itertools import cycle
 
 from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode, JsCode
+from streamlit.legacy_caching.caching import cache
 
 def exemplo():
     #Example controlers
@@ -182,7 +184,7 @@ def homol():
         with col1:
             st.session_state.papel = st.selectbox('Insira o Ativo', lista, help='Insira o ativo no caixa de seleção(Não é necessario apagar o ativo, apenas clique e digite as iniciais que a busca irá encontrar)')
         with col2:
-            st.session_state.lote = st.text_input('Quantidade',value='100')
+            st.session_state.lote = st.number_input('Quantidade', value = 100, step = 100)
 
         col1, col2, col3, col4 = st.columns([.4,.7,.9,1]) # Cria as colunas para disposição dos botões. Os numeros são os tamanhos para o alinhamento
         with col2:
@@ -193,13 +195,22 @@ def homol():
                     if 'grid_response' in st.session_state:
                         st.session_state.portifolio = st.session_state.grid_response['data']
                     st.session_state.portifolio = st.session_state.portifolio.append({'Ação': st.session_state.papel, 'Qtde': st.session_state.lote}, ignore_index=True)
-
-        with col4:
+                    st.session_state.portifolio['Qtde'] = pd.to_numeric(st.session_state.portifolio['Qtde'])
+        with col3:
             if st.form_submit_button(label='Apagar Ativo', help='Clique para apagar o Ativo selecionado'):
                 if len(st.session_state.papel_selecao) != 0:
                     st.session_state.portifolio.drop(st.session_state.portifolio[st.session_state.portifolio['Ação'] == st.session_state.papel_selecao[0].get('Ação')].index, inplace = True)
                 else:
                     st.warning("Vc não selecionou nada cacete!")
+        with col4:
+            if st.form_submit_button(label='Limpar Carteira', help='Clique para apagar todos os Ativos da Carteira'):
+                st.session_state.portifolio = pd.DataFrame(columns=['Ação', 'Qtde'])
+
+    if st.checkbox('Upload da Carteira'):    
+        file_carteira = st.file_uploader('Upload Carteira')
+        if file_carteira is not None:
+            st.session_state.portifolio = ''
+            st.session_state.portifolio = pd.read_csv(file_carteira,index_col=0)
                 
     gb = GridOptionsBuilder.from_dataframe(st.session_state.portifolio)
     gb.configure_default_column(groupable=True, value=True, enableRowGroup=True, aggFunc='sum', editable=False)
@@ -223,14 +234,23 @@ def homol():
         fit_columns_on_grid_load=True,
         allow_unsafe_jscode=True, #Set it to True to allow jsfunction to be injected
         )
-    st.write('Clique na Qtde para alterar caso necessário')
+    @st.cache
+    def convert_df(df):
+        # IMPORTANT: Cache the conversion to prevent computation on every rerun
+        return df.to_csv().encode('utf-8')
+
+    csv = convert_df(st.session_state.portifolio)
+    st.download_button(label="Download Carteira como CSV", data=csv, file_name='carteira_analisequant.csv', mime='text/csv')
+
     # st.session_state.portifolio = grid_response['data']
-    # st.dataframe(df)
-    # st.subheader("Returned grid data:")
+    st.write('Grid DATA')
     st.dataframe(st.session_state.grid_response['data'])
+    st.write('DataFrame DATA')
+    st.dataframe(st.session_state.portifolio)
     # st.subheader("grid selection:")
     # st.write(st.session_state.grid_response['selected_rows'])
     st.session_state.papel_selecao = st.session_state.grid_response['selected_rows']
+
 # exemplo()
 # exemplo_enxuto()
 homol()
