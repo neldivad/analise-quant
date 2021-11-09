@@ -206,7 +206,7 @@ def homol():
             if st.form_submit_button(label='Limpar Carteira', help='Clique para apagar todos os Ativos da Carteira'):
                 st.session_state.portifolio = pd.DataFrame(columns=['Ação', 'Qtde'])
 
-    if st.checkbox('Upload da Carteira'):    
+    if st.checkbox('Upload da Carteira (Somente arquivos salvos previamentes no AnaliseQuant)'):    
         file_carteira = st.file_uploader('Upload Carteira')
         if file_carteira is not None:
             st.session_state.portifolio = ''
