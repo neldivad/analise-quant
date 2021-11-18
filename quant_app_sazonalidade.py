@@ -86,7 +86,7 @@ def sazonalidade():
 # @st.cache(suppress_st_warning=True)
 # @st.experimental_memo
 def mapa_retornos(ticker, retornos):
-    with st.expander("Retornos Mensais", expanded=False):
+    with st.expander("Retornos Mensais", expanded=True):
         tabela_retornos = qs.stats.monthly_returns(retornos, eoy=False)
         tabela_retornos.columns = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
         col1, col2, col3 = st.columns([0.1,1,0.1])

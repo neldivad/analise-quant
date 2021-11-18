@@ -6,7 +6,9 @@ import altair as alt
 from itertools import cycle
 
 from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode, JsCode
+from streamlit.elements.file_uploader import SomeUploadedFiles
 from streamlit.legacy_caching.caching import cache
+from streamlit.state.session_state import SessionState
 
 def exemplo():
     #Example controlers
@@ -173,7 +175,6 @@ def exemplo_enxuto():
     # st.subheader("grid selection:")
     # st.write(grid_response['selected_rows'])
 
-
 def homol():
     lista = ['PETR4', 'WEGE3', 'VALE3', 'MGLU3', 'EQTL3']
     if 'portifolio' not in st.session_state:
@@ -251,6 +252,60 @@ def homol():
     # st.write(st.session_state.grid_response['selected_rows'])
     st.session_state.papel_selecao = st.session_state.grid_response['selected_rows']
 
+def homol2():
+    if 'portifolio' not in st.session_state:
+        st.write('Primeira vez')
+        st.session_state.portifolio = pd.DataFrame({'Ação': ['PETR4', 'WEGE3', 'VALE3', 'MGLU3', 'EQTL3'],'Qtde': [100, 200, 300, 400, 500], 'Preço': [12, 50, 40, 15, 35], 'Valor': '', '%':''})
+        st.session_state.total_carteira = 0
+
+    st.write(st.session_state.total_carteira)
+    gb = GridOptionsBuilder.from_dataframe(st.session_state.portifolio)
+    gb.configure_column('Qtde', editable=True, singleClickEdit=True)
+    
+    #Create a calculated column that updates when data is edited. Use agAnimateShowChangeCellRenderer to show changes   
+    
+    # gb.configure_column('%', valueGetter=f'Number(data.a) / {numero}', cellRenderer='agAnimateShowChangeCellRenderer', editable='false', type=['numericColumn'])
+    gb.configure_column('Valor',valueGetter='Number(data.Qtde) * Number(data.Preço)',valueSetter= 'Number(data.Preço)', cellRenderer='agAnimateShowChangeCellRenderer', editable='false', type=['numericColumn'])
+
+    numero = 2
+  
+    gb.configure_column('%', valueGetter=f'Number(data.Qtde)', cellRenderer='agAnimateShowChangeCellRenderer', editable='false', type=['numericColumn'])
+    go = gb.build()
+    return_mode = ['AS_INPUT', 'FILTERED', 'FILTERED_AND_SORTED']
+    return_mode_value = DataReturnMode.__members__[return_mode[0]]
+    update_mode = ['NO_UPDATE', 'MANUAL', 'VALUE_CHANGED', 'SELECTION_CHANGED', 'FILTERING_CHANGED', 'SORTING_CHANGED', 'MODEL_CHANGED']
+    update_mode_value = GridUpdateMode.__members__[update_mode[2]]
+    ag = AgGrid(
+        st.session_state.portifolio, 
+        gridOptions=go, 
+        height=200, 
+        fit_columns_on_grid_load=True, 
+        key='an_unique_key_xZs151',
+        data_return_mode=return_mode_value, 
+        update_mode=update_mode_value,
+        reload_data=False
+    )
+    # total_carteira = sum(ag['data']['Qtde'])
+    st.write(ag['data'])
+    st.session_state.portifolio = ag['data']
+    st.session_state.portifolio['Valor'] = st.session_state.portifolio['Qtde'] * st.session_state.portifolio['Preço']
+    st.session_state.total_carteira = sum(st.session_state.portifolio['Valor'])
+    # st.session_state.portifolio['%'] = 
+    st.write(st.session_state.portifolio)
+    st.write(st.session_state.total_carteira)
+
+def VAICACETE():
+    df = pd.DataFrame({'A': [10, 20, 30],'B': [100, 200, 300]})
+    gb = GridOptionsBuilder.from_dataframe(df)
+    gb.configure_column('Sum', valueGetter='Number(data.A) + Number(data.B)', type=['numericColumn'])
+    go = gb.build()
+    ag = AgGrid(df, gridOptions=go, height=200, fit_columns_on_grid_load=True, reload_data=False)
+    st.write('Returned grid data:')
+    st.write(ag['data'])
+
+
 # exemplo()
 # exemplo_enxuto()
-homol()
+# homol()
+# homol2()
+forum()

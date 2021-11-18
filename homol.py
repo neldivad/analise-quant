@@ -6,6 +6,7 @@ import altair as alt
 from itertools import cycle
 
 from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode, JsCode
+from streamlit.elements.file_uploader import SomeUploadedFiles
 from streamlit.legacy_caching.caching import cache
 
 def exemplo():
@@ -173,7 +174,6 @@ def exemplo_enxuto():
     # st.subheader("grid selection:")
     # st.write(grid_response['selected_rows'])
 
-
 def homol():
     lista = ['PETR4', 'WEGE3', 'VALE3', 'MGLU3', 'EQTL3']
     if 'portifolio' not in st.session_state:
@@ -251,6 +251,33 @@ def homol():
     # st.write(st.session_state.grid_response['selected_rows'])
     st.session_state.papel_selecao = st.session_state.grid_response['selected_rows']
 
+def homol2():
+    st.session_state.portifolio = pd.DataFrame({'Ação': ['PETR4', 'WEGE3', 'VALE3', 'MGLU3', 'EQTL3'],'Qtde': [100, 200, 300, 400, 500], 'Preço': [12, 50, 40, 15, 35]})
+
+    gb = GridOptionsBuilder.from_dataframe(st.session_state.portifolio)
+    gb.configure_column('Qtde', editable=True, singleClickEdit=True)
+    
+    #Create a calculated column that updates when data is edited. Use agAnimateShowChangeCellRenderer to show changes   
+    
+    # gb.configure_column('%', valueGetter=f'Number(data.a) / {numero}', cellRenderer='agAnimateShowChangeCellRenderer', editable='false', type=['numericColumn'])
+    gb.configure_column('virtual column a * b', valueGetter='Number(data.Qtde) * 2', cellRenderer='agAnimateShowChangeCellRenderer', editable='false', type=['numericColumn'],)
+    go = gb.build()
+    ag = AgGrid(
+        st.session_state.portifolio, 
+        gridOptions=go, 
+        height=200, 
+        fit_columns_on_grid_load=True, 
+        key='an_unique_key_xZs151',
+        reload_data=True
+    )
+    total_carteira = sum(ag['data']['Qtde'])
+    st.write(ag)
+    st.write(sum(ag['data']['Qtde']))
 # exemplo()
 # exemplo_enxuto()
-homol()
+# homol()
+homol2()
+
+
+
+
