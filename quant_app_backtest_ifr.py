@@ -293,12 +293,13 @@ def backtest_ifr():
         fig.update_layout(legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01)) #Controla a posição da legenda
         fig.update_yaxes(showgrid=False)
         st.plotly_chart(fig)
+        st.markdown('<h9>Clique na legenda "Lucros/Trade"" para mostrar</h9>', unsafe_allow_html=True)
 
 
 
     st.header('Backtesting IFR2')
 
-    with st.expander('Detalhes do Setup IFR2'):
+    with st.expander('Detalhes do Setup IFR2', expanded= True):
         st.write("""
             O Setup IFR2 utiliza o IFR de 2 períodos como sinal de entrada. Grafico diário, se o IFR de 2 períodos atingir um determindado valor
             (Originalmente 30 ou 25), é feita a compra no fechamento do dia. A saída é feita na máxima dos 2 últimos dias. O Stop é no tempo, 
