@@ -294,7 +294,7 @@ def homol2():
     st.write(st.session_state.portifolio)
     st.write(st.session_state.total_carteira)
 
-def VAICACETE():
+def forum():
     df = pd.DataFrame({'A': [10, 20, 30],'B': [100, 200, 300]})
     gb = GridOptionsBuilder.from_dataframe(df)
     gb.configure_column('Sum', valueGetter='Number(data.A) + Number(data.B)', type=['numericColumn'])
