@@ -16,6 +16,7 @@ from datetime import datetime
 import os
 import plotly
 import fundamentus
+from streamlit_option_menu import option_menu
 
 st.set_option('deprecation.showPyplotGlobalUse', False)  # Desabilitar os Warnigs sobre o Pyplot
 st.set_page_config(page_title='Análise Quant', layout='wide', initial_sidebar_state='auto')  # Configurar Pagina
@@ -35,8 +36,16 @@ def main():
     }
 
     st.sidebar.image('./imagens/analisequant_logo-removebg.png')
-    #st.sidebar.title(":chart: Análise Quant")
-    page = st.sidebar.radio("Selecione a opção", tuple(pages.keys()))
+    st.sidebar.write(' ')
+    st.sidebar.write(' ')
+    with st.sidebar:
+        page = option_menu("Menu", ["Home", 'Análise de Carteira', 'Correlações', 
+                                                'Sazonalidade do Mercado', 'Analise de Altas e Quedas',
+                                                'Backtest IFR2', 'Raio-X do Mercado', 'Contato / Reporte de Erros'], 
+            icons=['house', 'wallet2', 'shuffle', 'calendar3', 'arrow-down-up', 'journal-check', 'globe', 'person-rolodex'], 
+            menu_icon="list", default_index=0)
+
+    # page = st.sidebar.radio("Selecione a opção", tuple(pages.keys()))
     st.sidebar.markdown("***")
     with st.sidebar.expander('Versões'):
         # Mostrar versões das bibliotecas

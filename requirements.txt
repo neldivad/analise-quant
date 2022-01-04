@@ -16,3 +16,4 @@ altair
 streamlit_vega_lite
 streamlit-aggrid
 quantstats
+streamlit_option_menu
