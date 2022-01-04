@@ -39,9 +39,7 @@ def main():
     st.sidebar.write(' ')
     st.sidebar.write(' ')
     with st.sidebar:
-        page = option_menu("Menu", ["Home", 'Análise de Carteira', 'Correlações', 
-                                                'Sazonalidade do Mercado', 'Analise de Altas e Quedas',
-                                                'Backtest IFR2', 'Raio-X do Mercado', 'Contato / Reporte de Erros'], 
+        page = option_menu("Menu", tuple(pages.keys()), 
             icons=['house', 'wallet2', 'shuffle', 'calendar3', 'arrow-down-up', 'journal-check', 'globe', 'person-rolodex'], 
             menu_icon="list", default_index=0)
 
