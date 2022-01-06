@@ -38,7 +38,7 @@ def altas_quedas():
             if opcao == 'Alta':
                 indice = papel_temp[papel_temp["Retorno"] > perc].index
             else:
-                indice == papel_temp[papel_temp["Retorno"] < perc].index
+                indice = papel_temp[papel_temp["Retorno"] < perc].index
             dia_queda = papel.iloc[indice]
             dia_seguinte = papel.iloc[indice+1]
         else:
