@@ -5,6 +5,7 @@ import quant_app_correlacao
 import quant_app_sazonalidade
 import quant_app_altas_quedas
 import quant_app_backtest_ifr
+import quant_app_fundamentos
 import quant_app_raiox
 import quant_app_contato
 # import quant_app_carteira2
@@ -31,20 +32,22 @@ def main():
         "Sazonalidade do Mercado": page_sazonalidade,
         "Analise de Altas e Quedas": page_altas_quedas,
         "Backtest IFR2": page_backtest_ifr,
+        "Fundamentos": page_fundamentos,
         "Raio-X do Mercado": page_raiox,
         "Contato / Reporte de Erros": page_contato
     }
 
     st.sidebar.image('./imagens/analisequant_logo-removebg.png')
     st.sidebar.write(' ')
-    st.sidebar.write(' ')
+    # st.sidebar.write(' ')
     with st.sidebar:
         page = option_menu("Menu", tuple(pages.keys()), 
-            icons=['house', 'wallet2', 'shuffle', 'calendar3', 'arrow-down-up', 'journal-check', 'globe', 'person-rolodex'], 
+            icons=['house', 'wallet2', 'shuffle', 'calendar3', 'arrow-down-up', 'journal-check', 'book', 'globe', 'person-rolodex'], 
             menu_icon="list", default_index=0)
+    # Icones do Bootstrap Icons - https://icons.getbootstrap.com
 
     # page = st.sidebar.radio("Selecione a opção", tuple(pages.keys()))
-    st.sidebar.markdown("***")
+    # st.sidebar.markdown("***")
     with st.sidebar.expander('Versões'):
         # Mostrar versões das bibliotecas
         st.write(os.popen(f'python --version').read())
@@ -96,6 +99,9 @@ def page_altas_quedas():
 
 def page_backtest_ifr():
     quant_app_backtest_ifr.backtest_ifr()
+
+def page_fundamentos():
+    quant_app_fundamentos.fundamentos()
 
 def page_raiox():
     quant_app_raiox.raiox()
