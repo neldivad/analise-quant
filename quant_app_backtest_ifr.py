@@ -39,9 +39,10 @@ def backtest_ifr():
                 dias_stop = st.number_input('Dias para Stop no Tempo',min_value=1, max_value=25, value=7)
             else:
                 dias_stop=None
-        st.form_submit_button('Backtest')
-
-    executa_backtest(ticker, nivel_ifr, dias_stop, capital, data_inicio, data_fim, stop_tempo)
+        executa = st.form_submit_button('Backtest')
+    
+    if executa:
+        executa_backtest(ticker, nivel_ifr, dias_stop, capital, data_inicio, data_fim, stop_tempo)
 
 def executa_backtest(ticker, nivel_ifr, dias_stop, capital, data_inicio, data_fim,stop_tempo):
     # Coleta dos dados
@@ -292,7 +293,7 @@ def executa_backtest(ticker, nivel_ifr, dias_stop, capital, data_inicio, data_fi
                 #             sizex=0.2, sizey=0.2,
                 #             xanchor="right", yanchor="bottom"
                 #         )
-                dict(source="https://analise-quant.herokuapp.com/media/b25913f6835e74fc51249994ddecaf68599311449505c3a07b1c49c4.png",
+                dict(source='https://analise-quant.herokuapp.com/media/b25913f6835e74fc51249994ddecaf68599311449505c3a07b1c49c4.png',
                     xref="x domain", yref="y domain",
                     x=0.25, y=0.6,
                     sizex=0.5, sizey=0.5,
