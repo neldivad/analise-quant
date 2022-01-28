@@ -7,7 +7,7 @@ tickers = ['PETR4.SA', 'VALE3.SA', 'EQTL3.SA' , 'CSNA3.SA', 'EMBR3.SA']
 
 ticker = st.selectbox('Ação', tickers)
 
-periodos = ['1d', '5d','1mo', '3mo', '1y', '5y', '10y']
+periodos = ['1mo', '3mo', '1y', '5y', '10y']
 
 periodo_sel = st.selectbox('Selecione o periodo', periodos)
 
