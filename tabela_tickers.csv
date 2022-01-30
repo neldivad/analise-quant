@@ -100,7 +100,6 @@ BRAP4,Materiais Básicos,Mineração
 BRBI11,Financeiro,Intermediários Financeiros
 BRCO11,ETFs/FIIs/BDRs,ETFs/FIIs/BDRs
 BRCR11,ETFs/FIIs/BDRs,ETFs/FIIs/BDRs
-BRDT3,"Petróleo, Gás e Biocombustíveis","Petróleo, Gás e Biocombustíveis"
 BRFS3,Consumo não Cíclico,Alimentos Processados
 BRGE11,Financeiro,Previdência e Seguros
 BRGE12,Financeiro,Previdência e Seguros
@@ -601,6 +600,7 @@ VLID3,Bens Industriais,Serviços Diversos
 VRTA11,ETFs/FIIs/BDRs,ETFs/FIIs/BDRs
 VSLH11,ETFs/FIIs/BDRs,ETFs/FIIs/BDRs
 VULC3,Consumo Cíclico,"Tecidos, Vestuário e Calçados"
+VBBR3,"Petróleo, Gás e Biocombustíveis","Petróleo, Gás e Biocombustíveis"
 VVEO3,Saúde,Serviços Médicos
 WEGE3,Bens Industriais,Máquinas e Equipamentos
 WEST3,Consumo Cíclico,Comércio
