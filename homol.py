@@ -58,13 +58,16 @@ if busca:
                 st.markdown('**Fundo:** ' + selecao)
                 cnpj_fundo = cnpj[0:2] + '.' + cnpj[2:5] + '.' + cnpj[5:8] + '/' + cnpj[8:12] + '-' + cnpj[12:14]
                 st.markdown('**CNPJ:** ' + cnpj_fundo)
-                st.markdown('**Tipo Anbima:** ' +  profile['anbima_type'] )
+                st.markdown('**Classe:** ' +  profile['cvm_class'] )
                 st.markdown('**Benchmark:** ' +  profile['benchmark'] )
                 data_inicio_fundo = profile['activity_initial_date']
                 data_inicio_fundo = data_inicio_fundo[8:10] + '/' + data_inicio_fundo[5:7] + '/' + data_inicio_fundo[0:4]
                 st.markdown('**Data de Início:** ' +  data_inicio_fundo )
-                tx_adm = float(profile['adm_fee'])
-                tx_adm = f'{tx_adm:.2%}'
+                if profile['adm_fee'] != None:
+                    tx_adm = float(profile['adm_fee'])
+                    tx_adm = f'{tx_adm:.2%}'
+                else:
+                    tx_adm = "N/I"
                 st.markdown('**Tx. Adm.:** ' + tx_adm)
                 st.write(' ')
                 rent_12m = (df_cota_fundo.tail(252).iloc[-1][0]/df_cota_fundo.tail(252).iloc[0][0])-1
@@ -82,6 +85,19 @@ if busca:
                     x=0.25, y=0.6,
                     sizex=0.5, sizey=0.5,
                     opacity=0.3, layer="below"))
+
+                fig.update_xaxes(
+                    rangeslider_visible=True,
+                    rangeselector=dict(
+                        buttons=list([
+                            dict(count=1, label="1m", step="month", stepmode="backward"),
+                            dict(count=6, label="6m", step="month", stepmode="backward"),
+                            dict(count=1, label="1y", step="year", stepmode="backward"),
+                            dict(count=1, label="YTD", step="year", stepmode="todate"),
+                            dict(step="all")
+                            ])
+                        )
+                    )
                 st.plotly_chart(fig)
     else:
         st.error('Este fundo não possui dados nesta base')
