@@ -85,7 +85,6 @@ if busca:
                     x=0.25, y=0.6,
                     sizex=0.5, sizey=0.5,
                     opacity=0.3, layer="below"))
-
                 fig.update_xaxes(
                     rangeslider_visible=True,
                     rangeselector=dict(
