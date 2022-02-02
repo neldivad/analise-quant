@@ -59,7 +59,7 @@ if busca:
                 cnpj_fundo = cnpj[0:2] + '.' + cnpj[2:5] + '.' + cnpj[5:8] + '/' + cnpj[8:12] + '-' + cnpj[12:14]
                 st.markdown('**CNPJ:** ' + cnpj_fundo)
                 st.markdown('**Classe:** ' +  profile['cvm_class'] )
-                st.markdown('**Benchmark:** ' +  profile['benchmark'] )
+                st.markdown('**Benchmark:** ' +  str(profile['benchmark']))
                 data_inicio_fundo = profile['activity_initial_date']
                 data_inicio_fundo = data_inicio_fundo[8:10] + '/' + data_inicio_fundo[5:7] + '/' + data_inicio_fundo[0:4]
                 st.markdown('**Data de Início:** ' +  data_inicio_fundo )
