@@ -1,7 +1,9 @@
 import streamlit as st
 import pandas as pd
+from datetime import date
 import requests
 import plotly.graph_objects as go
+import yfinance as yf
 
 st.set_page_config(layout='wide')
 key = {'x-api-key': 'vDQAZKPcub6iasVMb4l4Y4pv4xaP1uzo7ENFD6q8'}
@@ -22,6 +24,19 @@ def puxar_lista_fundos():
     df_lista_fundos_completa.reset_index(inplace=True, drop=True)
 
     return df_lista_fundos_completa
+
+@st.cache
+def cdi_acumulado(data_inicio, data_fim):
+  codigo_bcb = 12
+  
+  url = 'http://api.bcb.gov.br/dados/serie/bcdata.sgs.{}/dados?formato=json'.format(codigo_bcb)
+  cdi = pd.read_json(url)
+  cdi['data'] = pd.to_datetime(cdi['data'], dayfirst=True)
+  cdi.set_index('data', inplace=True) 
+  cdi_acumulado = (1 + cdi[data_inicio : data_fim] / 100).cumprod()
+  cdi_acumulado.iloc[0] = 1
+  cdi_acumulado = cdi_acumulado - 1
+  return cdi_acumulado
 
 st.subheader('Informações de Fundos de Investimentos')
 # Escolher fundo
@@ -49,6 +64,10 @@ if busca:
         res_profile = requests.get(url, headers=key)
         profile = res_profile.json()
 
+        ibov = yf.download('^BVSP', start = df_cota_fundo.index[0].strftime('%Y-%m-%d'), end = df_cota_fundo.index[-1].strftime('%Y-%m-%d'))['Adj Close']
+        ibov_norm = (ibov / ibov.iloc[0]-1)
+
+        cdi = cdi_acumulado(df_cota_fundo.index[0],df_cota_fundo.index[-1])
 
         with st.expander('Informações', expanded=True):
             col1, col2 = st.columns([0.4,1])
@@ -74,7 +93,9 @@ if busca:
                 st.metric('Rentabilidade - Ult. 12 meses e desde início', value = f'{rent_12m:.0%}', delta = f'{ult_rent:.0%}')
             with col2:
                 fig = go.Figure()
-                fig.add_trace(go.Scatter(x=df_cota_fundo.index, y=df_cota_fundo['rent_norm']))
+                fig.add_trace(go.Scatter(x=df_cota_fundo.index, y=df_cota_fundo['rent_norm'], name = 'Fundo'))
+                fig.add_trace(go.Scatter(x=cdi.index, y=cdi['valor'], name = 'CDI'))
+                fig.add_trace(go.Scatter(x=ibov_norm.index, y=ibov_norm.values, name = 'IBOV'))
                 fig.update_layout(title_text = '<b>Histórico Rentabilidade</b>', yaxis_tickformat = '%', width=750, height=400,
                                     margin=dict(l=20, r=20, t=60, b=20))
                 fig.update_xaxes(showline=False, showgrid=False)
